@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111827" />
+  <title>Moji Prihodi — v1.1 Cloud</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+  <style>
+    :root{
+      --bg:#f4f7fb; --surface:#ffffff; --surface-2:#f8fafc; --text:#162033; --muted:#6b7280;
+      --line:#e5e7eb; --primary:#5b5ce2; --primary-2:#7c3aed; --green:#10b981; --red:#ef4444;
+      --orange:#f59e0b; --cyan:#06b6d4; --blue:#3b82f6; --pink:#ec4899; --shadow:0 12px 35px rgba(15,23,42,.08);
+      --radius:20px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#f7f9ff 0%,#f3f8fb 45%,#fff8f2 100%);color:var(--text);min-height:100vh}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:1480px;margin:0 auto;padding:20px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow);border-radius:24px;padding:16px 18px;position:sticky;top:12px;z-index:20}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}.brand-icon{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,#5b5ce2,#8b5cf6);color:#fff;font-size:24px;box-shadow:0 8px 24px rgba(91,92,226,.25)}
+    .brand h1{font-size:20px;margin:0}.brand small{color:var(--muted)}
+    .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .currency-switch{display:flex;background:#edf0f7;padding:4px;border-radius:12px}.currency-switch button{border:0;background:transparent;padding:8px 13px;border-radius:9px;color:#667085;font-weight:700}.currency-switch button.active{background:#fff;color:var(--primary);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+    .btn{border:0;border-radius:12px;padding:10px 14px;font-weight:750;color:#344054;background:#eef2f7;transition:.2s}.btn:hover{transform:translateY(-1px)}.btn.primary{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-2));box-shadow:0 8px 20px rgba(91,92,226,.23)}.btn.danger{color:#b42318;background:#fee4e2}.btn.ghost{background:#fff;border:1px solid var(--line)}
+    .nav{display:flex;gap:8px;margin:18px 0;overflow:auto;padding:3px}.nav button{white-space:nowrap;border:0;padding:11px 15px;border-radius:12px;background:transparent;color:#667085;font-weight:750}.nav button.active{background:#fff;color:var(--primary);box-shadow:0 8px 24px rgba(15,23,42,.07)}
+    .page{display:none}.page.active{display:block}
+    .grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(6,minmax(0,1fr));margin-bottom:16px}.card{background:rgba(255,255,255,.93);border:1px solid rgba(226,232,240,.9);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.card h3{margin:0 0 5px;font-size:14px;color:#667085;font-weight:750}.kpi-value{font-size:28px;font-weight:850;letter-spacing:-.03em;margin-top:7px;white-space:nowrap}.kpi-sub{margin-top:8px;color:var(--muted);font-size:12px}.accent-purple{background:linear-gradient(145deg,#fff,#f2efff)}.accent-green{background:linear-gradient(145deg,#fff,#ecfdf5)}.accent-blue{background:linear-gradient(145deg,#fff,#eff6ff)}.accent-orange{background:linear-gradient(145deg,#fff,#fff7ed)}.accent-cyan{background:linear-gradient(145deg,#fff,#ecfeff)}.accent-pink{background:linear-gradient(145deg,#fff,#fdf2f8)}
+    .positive{color:#059669!important}.negative{color:#dc2626!important}.neutral{color:#667085!important}
+    .dashboard-main{grid-template-columns:minmax(0,2fr) minmax(320px,1fr)}.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.section-title h2{font-size:18px;margin:0}.section-title p{margin:3px 0 0;color:var(--muted);font-size:13px}.segmented{display:flex;gap:3px;background:#f1f3f8;padding:3px;border-radius:10px}.segmented button{border:0;background:transparent;border-radius:8px;padding:6px 9px;font-size:12px;font-weight:750;color:#667085}.segmented button.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(15,23,42,.08)}
+    .chart-wrap{position:relative;height:365px}.chart-wrap.medium{height:320px}.chart-wrap.small{height:275px}
+    .insights{display:flex;flex-direction:column;gap:10px}.insight{padding:12px 13px;border-radius:14px;background:#f8fafc;border:1px solid #eef2f6;font-size:13px;line-height:1.45}.insight strong{color:#344054}
+    .range-box{margin-top:14px;padding:14px;border-radius:14px;background:#f8fafc}.range-track{height:12px;border-radius:999px;background:linear-gradient(90deg,#fca5a5,#fde68a,#86efac);position:relative;margin:12px 3px 7px}.range-dot{position:absolute;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);border:3px solid #fff;border-radius:50%;background:#1f2937;box-shadow:0 2px 8px rgba(0,0,0,.25)}.range-labels{display:flex;justify-content:space-between;color:#667085;font-size:11px}
+    .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:14px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:12px;color:#667085;font-weight:700}.field input,.field select,.field textarea{border:1px solid #dfe4ec;border-radius:11px;padding:10px 11px;background:#fff;color:#1f2937;outline:none;min-width:120px}.field input:focus,.field select:focus,.field textarea:focus{border-color:#9b8afb;box-shadow:0 0 0 3px rgba(91,92,226,.11)}
+    .table-wrap{overflow:auto;border:1px solid #edf0f5;border-radius:15px}.table{width:100%;border-collapse:collapse;min-width:850px}.table th,.table td{padding:12px 13px;text-align:left;border-bottom:1px solid #edf0f5;font-size:13px}.table th{position:sticky;top:0;background:#f8fafc;z-index:1;color:#667085;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.table tr:hover td{background:#fbfcff}.table td.num{text-align:right;font-variant-numeric:tabular-nums}.table th.num{text-align:right}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;background:#eef2ff;color:#4f46e5;font-size:11px;font-weight:750}.badge.outlier{background:#fff7ed;color:#c2410c}.icon-btn{border:0;background:#f2f4f7;border-radius:9px;padding:7px 9px;margin-right:4px}
+    .stats-kpis{grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:16px}.stats-grid-2{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:16px}.stats-grid-3{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px}.list{display:flex;flex-direction:column;gap:9px}.rank-row{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#f8fafc}.rank-n{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#eef2ff;color:#4f46e5;font-weight:850;font-size:12px}.rank-row small{display:block;color:#98a2b3;margin-top:2px}.rank-val{font-weight:800;white-space:nowrap}
+    .heatmap-wrap{overflow:auto}.heatmap{display:grid;grid-template-columns:64px repeat(12,minmax(36px,1fr));gap:5px;min-width:760px;align-items:center}.hm-head,.hm-year{font-size:10px;color:#667085;text-align:center}.hm-year{text-align:left;font-weight:750}.hm-cell{height:31px;border-radius:7px;display:grid;place-items:center;font-size:9px;font-weight:700;color:#344054;position:relative}.hm-empty{background:#f2f4f7;color:#c1c7d0}.hm-cell:hover{outline:2px solid rgba(91,92,226,.3);z-index:2}
+    .data-grid{grid-template-columns:minmax(320px,.9fr) minmax(0,1.3fr)}.form-card .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-card textarea{min-height:92px;resize:vertical}.form-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}.hint{font-size:12px;color:#667085;line-height:1.5}.notice{padding:12px 13px;border-radius:12px;background:#fffaeb;color:#7a5b10;border:1px solid #fedf89;font-size:12px}.settings-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.source-box{margin-top:15px;padding:12px 13px;background:#f8fafc;border:1px solid #edf0f5;border-radius:12px;font-size:12px;color:#667085;line-height:1.55}
+    .toast{position:fixed;right:20px;bottom:20px;z-index:50;background:#101828;color:#fff;border-radius:12px;padding:12px 15px;box-shadow:0 12px 35px rgba(0,0,0,.22);opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:translateY(0)}
+    .footer{text-align:center;color:#98a2b3;font-size:11px;padding:22px 0 4px}
+    .auth-gate{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at 20% 15%,rgba(91,92,226,.15),transparent 34%),rgba(244,247,251,.96);display:grid;place-items:center;padding:20px;backdrop-filter:blur(8px)}
+    .auth-gate.hidden{display:none}.auth-card{width:min(430px,100%);background:#fff;border:1px solid #e7eaf0;border-radius:24px;padding:28px;box-shadow:0 26px 70px rgba(15,23,42,.16);text-align:center}.auth-logo{width:64px;height:64px;margin:0 auto 14px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,#5b5ce2,#8b5cf6);color:white;font-size:30px}.auth-card h2{margin:0 0 8px}.auth-card p{color:#667085;line-height:1.55;font-size:13px}.google-btn{width:100%;margin-top:12px;padding:12px 14px;border-radius:13px;border:1px solid #dfe4ec;background:#fff;font-weight:800;color:#344054}.auth-error{min-height:20px;margin-top:12px;color:#b42318;font-size:12px}.user-chip{display:flex;align-items:center;gap:8px;padding:6px 9px;background:#fff;border:1px solid var(--line);border-radius:12px;max-width:220px}.user-chip img{width:28px;height:28px;border-radius:50%;object-fit:cover}.user-chip .who{min-width:0;line-height:1.1}.user-chip strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sync-status{display:block;font-size:9px;color:#667085;margin-top:3px;white-space:nowrap}.logout-btn{border:0;background:transparent;color:#98a2b3;font-size:16px;padding:3px}.rate-line{display:flex;gap:7px;align-items:center}.rate-line input{flex:1;min-width:0}.rate-refresh{border:1px solid #dfe4ec;background:#f8fafc;border-radius:10px;padding:9px 10px}.rate-meta{font-size:10px;color:#667085;margin-top:4px;min-height:15px}.empty-banner{display:none;margin-bottom:16px;padding:15px 16px;border-radius:16px;border:1px solid #c7d7fe;background:#eef4ff;color:#344054;align-items:center;justify-content:space-between;gap:14px}.empty-banner.show{display:flex}.empty-banner strong{display:block;margin-bottom:3px}.cloud-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;margin-right:5px}.cloud-dot.busy{background:#f59e0b}.cloud-dot.error{background:#ef4444}
+    @media(max-width:760px){.user-chip{max-width:150px}.empty-banner.show{align-items:flex-start;flex-direction:column}}
+    @media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.stats-kpis{grid-template-columns:repeat(3,1fr)}.stats-grid-3{grid-template-columns:1fr 1fr}.dashboard-main{grid-template-columns:1fr}.data-grid{grid-template-columns:1fr}}
+    @media(max-width:760px){.app{padding:10px}.topbar{top:6px;padding:12px;border-radius:18px;align-items:flex-start}.brand small{display:none}.top-actions{gap:6px}.top-actions .btn.primary{padding:9px 10px}.kpis,.stats-kpis,.stats-grid-2,.stats-grid-3{grid-template-columns:1fr 1fr}.kpi-value{font-size:23px}.card{padding:14px;border-radius:16px}.chart-wrap{height:290px}.data-grid{grid-template-columns:1fr}.form-card .form-grid{grid-template-columns:1fr}.currency-switch button{padding:7px 9px}}
+    @media(max-width:470px){.brand h1{font-size:17px}.brand-icon{width:40px;height:40px}.topbar{flex-direction:column}.top-actions{width:100%;justify-content:space-between}.kpis,.stats-kpis,.stats-grid-2,.stats-grid-3{grid-template-columns:1fr}.nav{margin:12px 0}.kpi-value{font-size:26px}}
+  </style>
+</head>
+<body>
+<div id="authGate" class="auth-gate">
+  <div class="auth-card">
+    <div class="auth-logo">↗</div>
+    <h2>Moji Prihodi</h2>
+    <p id="authText">Prijavi se Google nalogom da bi pristupio svojim podacima u Firebase bazi.</p>
+    <button id="googleLogin" class="google-btn">G&nbsp;&nbsp; Prijavi se Google nalogom</button>
+    <div id="authError" class="auth-error"></div>
+  </div>
+</div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.1 Cloud</small></div></div>
+    <div class="top-actions">
+      <div class="currency-switch"><button id="rsdBtn" class="active">RSD</button><button id="eurBtn">EUR</button></div>
+      <div class="user-chip" id="userChip" style="display:none"><img id="userPhoto" alt=""><div class="who"><strong id="userName">Google nalog</strong><span class="sync-status" id="syncStatus"><span class="cloud-dot"></span>Firebase</span></div><button class="logout-btn" id="logoutBtn" title="Odjavi se">⎋</button></div>
+      <button class="btn primary" id="quickAdd">＋ Novi prihod</button>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <button class="active" data-page="dashboard">Početna</button>
+    <button data-page="history">Istorija</button>
+    <button data-page="statistics">Statistika</button>
+    <button data-page="data">Podaci i podešavanja</button>
+  </nav>
+
+  <main>
+    <div id="emptyCloudBanner" class="empty-banner"><div><strong>Firebase baza je prazna</strong><span>Uvezi privatni početni JSON jednom. Posle toga se svi podaci čuvaju i sinhronizuju u oblaku.</span></div><button class="btn primary" id="seedImportBtn">Uvezi početnu istoriju</button></div>
+    <section id="dashboard" class="page active">
+      <div class="grid kpis">
+        <div class="card accent-purple"><h3>Poslednji prihod</h3><div class="kpi-value" id="kpiLatest">—</div><div class="kpi-sub" id="kpiLatestSub">—</div></div>
+        <div class="card accent-green"><h3>Promena MoM</h3><div class="kpi-value" id="kpiMom">—</div><div class="kpi-sub">u odnosu na prethodni evidentirani mesec</div></div>
+        <div class="card accent-blue"><h3>Promena YoY</h3><div class="kpi-value" id="kpiYoy">—</div><div class="kpi-sub">u odnosu na isti mesec prethodne godine</div></div>
+        <div class="card accent-orange"><h3>Prosek poslednjih 12M</h3><div class="kpi-value" id="kpi12Avg">—</div><div class="kpi-sub" id="kpi12AvgSub">—</div></div>
+        <div class="card accent-cyan"><h3>Prihod poslednjih 12M</h3><div class="kpi-value" id="kpi12Sum">—</div><div class="kpi-sub">zbir poslednjih 12 evidentiranih meseci</div></div>
+        <div class="card accent-pink"><h3>Istorijska medijana</h3><div class="kpi-value" id="kpiMedian">—</div><div class="kpi-sub" id="kpiMedianSub">—</div></div>
+      </div>
+
+      <div class="grid dashboard-main">
+        <div class="card">
+          <div class="section-title"><div><h2>Kretanje prihoda</h2><p>Mesečni prihod kroz vreme</p></div><div class="segmented" id="mainRange"><button data-range="12">1G</button><button data-range="36">3G</button><button data-range="60">5G</button><button data-range="all" class="active">SVE</button></div></div>
+          <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="section-title"><div><h2>Automatski uvidi</h2><p>Najvažnije što podaci trenutno govore</p></div></div>
+          <div id="insights" class="insights"></div>
+          <div class="range-box"><strong style="font-size:13px">Pozicija poslednjeg prihoda u istorijskom rasponu</strong><div class="range-track"><span id="rangeDot" class="range-dot" style="left:50%"></span></div><div class="range-labels"><span id="rangeMin">MIN</span><span id="rangePct">—</span><span id="rangeMax">MAX</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="history" class="page">
+      <div class="card">
+        <div class="section-title"><div><h2>Istorija prihoda</h2><p>Svi unosi od 2012. godine, sa mesečnim kursom i promenama</p></div></div>
+        <div class="filters">
+          <div class="field"><label>Godina</label><select id="historyYear"><option value="all">Sve godine</option></select></div>
+          <div class="field"><label>Tip</label><select id="historyType"><option value="all">Svi tipovi</option><option>Prihod</option><option>Bonus / nagrada</option><option>Korekcija</option><option>Ostalo</option></select></div>
+          <div class="field" style="flex:1;min-width:220px"><label>Pretraga napomene</label><input id="historySearch" placeholder="npr. bonus, promena pozicije..." /></div>
+          <button class="btn ghost" id="historyReset">Očisti filtere</button>
+        </div>
+        <div class="table-wrap"><table class="table"><thead><tr><th>Period</th><th class="num">Prihod</th><th class="num">MoM</th><th class="num">YoY</th><th class="num">EUR kurs</th><th>Tip</th><th>Napomena</th><th>Akcije</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="statistics" class="page">
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title"><div><h2>Statistički period</h2><p>Sve statistike ispod prate izabrani period</p></div></div>
+        <div class="filters" style="margin:0"><div class="field"><label>Od godine</label><select id="statsFrom"></select></div><div class="field"><label>Do godine</label><select id="statsTo"></select></div><button class="btn ghost" id="statsAll">Ceo period</button></div>
+      </div>
+      <div class="grid stats-kpis">
+        <div class="card accent-purple"><h3>Prosečan mesečni prihod</h3><div class="kpi-value" id="statAvg">—</div><div class="kpi-sub" id="statAvgSub">—</div></div>
+        <div class="card accent-green"><h3>Minimum</h3><div class="kpi-value" id="statMin">—</div><div class="kpi-sub" id="statMinSub">—</div></div>
+        <div class="card accent-orange"><h3>Maksimum</h3><div class="kpi-value" id="statMax">—</div><div class="kpi-sub" id="statMaxSub">—</div></div>
+        <div class="card accent-blue"><h3>Dugoročni CAGR</h3><div class="kpi-value" id="statCagr">—</div><div class="kpi-sub">od prvog do poslednjeg meseca u periodu</div></div>
+        <div class="card accent-cyan"><h3>Volatilnost</h3><div class="kpi-value" id="statVol">—</div><div class="kpi-sub">standardna devijacija / prosek</div></div>
+      </div>
+
+      <div class="grid stats-grid-2">
+        <div class="card"><div class="section-title"><div><h2>Prosek po godinama</h2><p>Prosečan mesečni prihod za svaku godinu</p></div></div><div class="chart-wrap medium"><canvas id="annualAvgChart"></canvas></div></div>
+        <div class="card"><div class="section-title"><div><h2>Godišnji prihod</h2><p>Ukupan zbir evidentiranih meseci po godini</p></div></div><div class="chart-wrap medium"><canvas id="annualTotalChart"></canvas></div></div>
+      </div>
+      <div class="grid stats-grid-2">
+        <div class="card"><div class="section-title"><div><h2>Sezonalnost</h2><p>Prosečan prihod za isti kalendarski mesec kroz godine</p></div></div><div class="chart-wrap medium"><canvas id="seasonChart"></canvas></div></div>
+        <div class="card"><div class="section-title"><div><h2>Rolling 12M prosek</h2><p>Pokretni prosek poslednjih 12 evidentiranih meseci</p></div></div><div class="chart-wrap medium"><canvas id="rollingChart"></canvas></div></div>
+      </div>
+      <div class="grid stats-grid-3">
+        <div class="card"><div class="section-title"><div><h2>Top 5 meseci</h2><p>Najveći evidentirani prihodi</p></div></div><div class="list" id="topMonths"></div></div>
+        <div class="card"><div class="section-title"><div><h2>Donjih 5 meseci</h2><p>Najniži evidentirani prihodi</p></div></div><div class="list" id="bottomMonths"></div></div>
+        <div class="card"><div class="section-title"><div><h2>Trend i ritam</h2><p>Sažetak dinamike prihoda</p></div></div><div class="list" id="trendSummary"></div></div>
+      </div>
+      <div class="card" style="margin-bottom:16px"><div class="section-title"><div><h2>Heatmap prihoda</h2><p>Godine × meseci; intenzitet pokazuje relativnu visinu prihoda unutar izabranog perioda</p></div></div><div class="heatmap-wrap"><div id="heatmap" class="heatmap"></div></div></div>
+      <div class="card">
+        <div class="section-title"><div><h2>Poređenje godina</h2><p>Uporedi mesece između dve ili tri godine</p></div></div>
+        <div class="filters"><div class="field"><label>Godina A</label><select id="compareA"></select></div><div class="field"><label>Godina B</label><select id="compareB"></select></div><div class="field"><label>Godina C</label><select id="compareC"><option value="">Bez treće godine</option></select></div></div>
+        <div class="chart-wrap medium"><canvas id="compareChart"></canvas></div>
+      </div>
+    </section>
+
+    <section id="data" class="page">
+      <div class="grid data-grid">
+        <div class="card form-card" id="entryCard">
+          <div class="section-title"><div><h2 id="formTitle">Novi mesečni prihod</h2><p>Originalni iznos se uvek čuva u RSD</p></div></div>
+          <input type="hidden" id="editId" />
+          <div class="form-grid">
+            <div class="field"><label>Godina</label><input type="number" id="entryYear" min="2012" max="2100" /></div>
+            <div class="field"><label>Mesec</label><select id="entryMonth"></select></div>
+            <div class="field"><label>Prihod u RSD</label><input id="entryAmount" inputmode="decimal" placeholder="npr. 289.276,55" /></div>
+            <div class="field"><label>Srednji kurs EUR/RSD na dan unosa</label><div class="rate-line"><input id="entryRate" inputmode="decimal" placeholder="Učitavanje..." /><button type="button" class="rate-refresh" id="refreshRate" title="Ponovo preuzmi kurs">↻</button></div><div id="rateMeta" class="rate-meta">Automatski se preuzima pri novom unosu</div></div>
+            <div class="field"><label>Tip</label><select id="entryType"><option>Prihod</option><option>Bonus / nagrada</option><option>Korekcija</option><option>Ostalo</option></select></div>
+            <div class="field"><label>EUR ekvivalent</label><input id="entryEurPreview" readonly /></div>
+          </div>
+          <div class="field" style="margin-top:12px"><label>Napomena</label><textarea id="entryNote" placeholder="Opcionalno — bonus, promena pozicije, jednokratna isplata..."></textarea></div>
+          <div id="rateNotice" class="notice" style="display:none;margin-top:12px"></div>
+          <div class="form-actions"><button class="btn primary" id="saveEntry">Sačuvaj</button><button class="btn ghost" id="cancelEdit" style="display:none">Odustani od izmene</button></div>
+        </div>
+        <div class="card">
+          <div class="section-title"><div><h2>Cloud podaci i backup</h2><p>Glavna baza je Firebase Firestore; promene se sinhronizuju između uređaja</p></div></div>
+          <p class="hint">JSON backup čuva sve podatke, kurs, tip i napomene. CSV je praktičan za Excel. Import prihvata oba formata.</p>
+          <div class="settings-actions"><button class="btn ghost" id="exportJson">Izvezi JSON</button><button class="btn ghost" id="exportCsv">Izvezi CSV</button><button class="btn ghost" id="importBtn">Uvezi JSON / CSV</button><input type="file" id="importFile" accept=".json,.csv,application/json,text/csv" hidden /></div>
+          <hr style="border:0;border-top:1px solid #edf0f5;margin:20px 0">
+          <h3 style="font-size:15px;color:#344054">Firebase sinhronizacija</h3>
+          <p class="hint">Podaci se čuvaju u dokumentu <code>mojiPrihodi/shared</code>. Lokalni browser čuva samo podešavanja prikaza i može automatski preneti podatke iz stare V1.0 pri prvom pokretanju.</p>
+          <div class="settings-actions"><button class="btn ghost" id="reloadCloud">Ponovo učitaj iz Firebase-a</button></div>
+          <div class="source-box"><strong>Metodologija kursa:</strong> istorijski zapisi zadržavaju svoj mesečni prosečni kurs. Kod svakog novog prihoda aplikacija automatski preuzima dnevni zvanični srednji EUR/RSD kurs zasnovan na podacima NBS i čuva i datum korišćenog kursa. Ako servis trenutno nije dostupan, polje ostaje ručno izmenjivo kao rezervna opcija.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="footer">Moji Prihodi v1.1 Cloud · Firebase + Google prijava · istorija i statistika prihoda</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const MONTHS = ['januar','februar','mart','april','maj','jun','jul','avgust','septembar','oktobar','novembar','decembar'];
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+const STORAGE_KEY='mojiPrihodi_v1_data';
+const SETTINGS_KEY='mojiPrihodi_v1_settings';
+
+const MONTHLY_RATES = {
+2012:[105.00,108.15,110.90,111.62,113.45,115.77,116.46,117.89,116.40,113.86,112.91,113.54],
+2013:[112.13,111.38,111.72,111.50,110.87,114.02,113.90,114.03,114.64,114.19,114.07,114.71],
+2014:[115.40,115.90,115.84,115.54,115.66,115.53,116.22,117.31,118.62,119.35,119.97,121.53],
+2015:[122.42,121.59,120.47,120.16,120.57,120.56,120.21,120.22,120.19,120.08,120.65,121.75],
+2016:[122.48,122.87,123.13,122.80,122.81,123.40,123.35,123.31,123.23,123.18,123.18,123.42],
+2017:[123.77,123.94,123.89,123.67,123.06,122.02,120.42,119.57,119.30,119.28,118.90,119.14],
+2018:[118.61,118.38,118.27,118.19,118.19,118.13,118.05,118.10,118.28,118.44,118.35,118.28],
+2019:[118.39,118.24,118.04,117.99,117.96,117.94,117.78,117.78,117.60,117.55,117.51,117.54],
+2020:[117.57,117.57,117.56,117.57,117.59,117.59,117.59,117.59,117.58,117.58,117.57,117.58],
+2021:[117.58,117.58,117.58,117.57,117.58,117.57,117.56,117.57,117.57,117.57,117.58,117.58],
+2022:[117.58,117.59,117.68,117.72,117.57,117.43,117.3938,117.3550,117.3246,117.3129,117.3086,117.3097],
+2023:[117.3635,117.3266,117.3144,117.2824,117.2831,117.2731,117.2269,117.2139,117.2015,117.1852,117.1934,117.1740],
+2024:[117.2102,117.1795,117.1912,117.1384,117.1161,117.0715,117.0507,117.0366,117.0461,117.0341,116.9936,116.9730],
+2025:[117.1216,117.1386,117.1713,117.2029,117.2275,117.2074,117.1756,117.1725,117.1773,117.1952,117.2495,117.3751],
+2026:[117.3644,117.3998,117.4164,117.3931,117.3973,117.3892,117.3836,117.3635,null,null,null,null]
+};
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDBy-z2gd1Mjpo7rkrJbh9OCZYnxR1dOkE",
+  authDomain: "mojiracuni-63102.firebaseapp.com",
+  projectId: "mojiracuni-63102",
+  storageBucket: "mojiracuni-63102.firebasestorage.app",
+  messagingSenderId: "832148284706",
+  appId: "1:832148284706:web:b66b1d153c55a414f5717b"
+};
+const CLOUD_COLLECTION='mojiPrihodi', CLOUD_DOCUMENT='shared';
+const RATE_API='https://kurs.resenje.org/api/v1/currencies/eur/rates/today';
+
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.firestore();
+const provider=new firebase.auth.GoogleAuthProvider();
+const cloudDoc=db.collection(CLOUD_COLLECTION).doc(CLOUD_DOCUMENT);
+let cloudReady=false,currentUser=null,cloudUnsub=null,cloudSaveTimer=null,applyingRemote=false;
+let currentRateMeta={date:null,kind:null,source:null};
+let dailyRateCache=null;
+
+function buildInitialData(){return []}
+function loadLegacyData(){try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY));return Array.isArray(v)&&v.length?v:[]}catch(e){return []}}
+const legacyLocalData=loadLegacyData();
+let data = [];
+let settings = loadSettings();
+let currency = settings.currency || 'RSD';
+let mainRange = settings.mainRange || 'all';
+let charts={};
+
+function loadSettings(){try{return JSON.parse(localStorage.getItem(SETTINGS_KEY))||{}}catch(e){return {}}}
+function persistSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify({...settings,currency,mainRange}))}
+function persist(){persistSettings();queueCloudSave()}
+function setSyncStatus(text,state='ok'){const el=document.getElementById('syncStatus');if(!el)return;const cls=state==='busy'?'busy':state==='error'?'error':'';el.innerHTML=`<span class="cloud-dot ${cls}"></span>${escapeHtml(text)}`}
+function queueCloudSave(){if(!cloudReady||!currentUser||applyingRemote)return;clearTimeout(cloudSaveTimer);setSyncStatus('Čuvanje…','busy');cloudSaveTimer=setTimeout(()=>saveCloudData(),180)}
+async function saveCloudData(){if(!cloudReady||!currentUser)return;try{await cloudDoc.set({incomes:sortedRows(),schema:2,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:currentUser.uid},{merge:true});setSyncStatus('Sinhronizovano')}catch(e){console.error(e);setSyncStatus('Greška sinhronizacije','error');toast('Firebase čuvanje nije uspelo.')}}
+function sortedRows(rows=data){return [...rows].sort((a,b)=>(a.year-b.year)||(a.month-b.month))}
+function getRate(year,month){const row=data.find(x=>x.year===+year&&x.month===+month);if(row?.rate)return +row.rate;return MONTHLY_RATES[year]?.[month-1]??null}
+function val(row){if(currency==='EUR'){const r=row.rate||getRate(row.year,row.month);return r?row.amount/r:null}return row.amount}
+function fmt(n,cur=currency){if(n==null||!isFinite(n))return '—';return new Intl.NumberFormat('sr-RS',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+' '+cur}
+function fmtRate(n){return n?new Intl.NumberFormat('sr-RS',{minimumFractionDigits:2,maximumFractionDigits:4}).format(n):'—'}
+function fmtPct(n){if(n==null||!isFinite(n))return '—';return `${n>0?'+':''}${new Intl.NumberFormat('sr-RS',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n)}%`}
+function periodLabel(r){return `${MONTHS[r.month-1]} ${r.year}.`}
+function pctChange(a,b){return (a!=null&&b!=null&&b!==0)?(a/b-1)*100:null}
+function mean(a){const v=a.filter(Number.isFinite);return v.length?v.reduce((s,x)=>s+x,0)/v.length:null}
+function median(a){const v=a.filter(Number.isFinite).sort((x,y)=>x-y);if(!v.length)return null;const m=Math.floor(v.length/2);return v.length%2?v[m]:(v[m-1]+v[m])/2}
+function stdev(a){const m=mean(a);if(m==null)return null;return Math.sqrt(mean(a.map(x=>(x-m)**2)))}
+function percentileRank(a,x){const v=a.filter(Number.isFinite).sort((p,q)=>p-q);if(!v.length)return null;return 100*v.filter(n=>n<=x).length/v.length}
+function rowBy(year,month){return data.find(r=>r.year===year&&r.month===month)}
+function previousRow(r){const rows=sortedRows();const i=rows.findIndex(x=>x.id===r.id);return i>0?rows[i-1]:null}
+function yoyRow(r){return rowBy(r.year-1,r.month)}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),2200)}
+function classForPct(n){return n>0?'positive':n<0?'negative':'neutral'}
+function parseLocaleNumber(s){if(typeof s==='number')return s;let x=String(s||'').trim().replace(/\s/g,'');if(!x)return null;const lc=x.lastIndexOf(','), ld=x.lastIndexOf('.');if(lc>-1&&ld>-1){if(lc>ld)x=x.replace(/\./g,'').replace(',','.');else x=x.replace(/,/g,'')}else if(lc>-1)x=x.replace(',','.');else if((x.match(/\./g)||[]).length>1)x=x.replace(/\./g,'');const n=Number(x);return isFinite(n)?n:null}
+
+function setCurrency(c){currency=c;document.getElementById('rsdBtn').classList.toggle('active',c==='RSD');document.getElementById('eurBtn').classList.toggle('active',c==='EUR');persistSettings();renderAll()}
+function navigate(page){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===page));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===page));if(page==='statistics'&&data.length)renderStatistics();if(page==='history')renderHistory();if(page==='data'&&!document.getElementById('editId').value)prepareNewEntry(false)}
+
+function destroyChart(name){if(charts[name]){charts[name].destroy();delete charts[name]}}
+function makeChart(name,canvasId,type,labels,datasets,opts={}){destroyChart(name);const ctx=document.getElementById(canvasId);if(!ctx)return;if(!window.Chart){ctx.style.display='none';if(!ctx.parentElement.querySelector('.chart-offline')){const n=document.createElement('div');n.className='notice chart-offline';n.textContent='Grafikoni zahtevaju internet vezu za učitavanje Chart.js biblioteke.';ctx.parentElement.appendChild(n)}return}ctx.style.display='block';ctx.parentElement.querySelector('.chart-offline')?.remove();charts[name]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:datasets.length>1,labels:{usePointStyle:true,boxWidth:8}},tooltip:{callbacks:{label:(c)=>`${c.dataset.label||'Prihod'}: ${fmt(c.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:14,color:'#7b8190'}},y:{grid:{color:'rgba(148,163,184,.14)'},ticks:{color:'#7b8190',callback:(v)=>{if(currency==='EUR')return new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v)+' €';return new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v)}}}},...opts}})}
+
+function renderDashboard(){
+  const rows=sortedRows(); if(!rows.length){['kpiLatest','kpiMom','kpiYoy','kpi12Avg','kpi12Sum','kpiMedian'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});document.getElementById('kpiLatestSub').textContent='Nema podataka';document.getElementById('kpi12AvgSub').textContent='—';document.getElementById('kpiMedianSub').textContent='—';document.getElementById('insights').innerHTML='<div class="insight">Uvezi početnu istoriju ili dodaj prvi mesečni prihod.</div>';destroyChart('main');return;}
+  const latest=rows.at(-1), prev=rows.at(-2), yoy=yoyRow(latest);
+  const latestVal=val(latest), prevVal=prev?val(prev):null, yoyVal=yoy?val(yoy):null;
+  const last12=rows.slice(-12), last12Vals=last12.map(val).filter(Number.isFinite), allVals=rows.map(val).filter(Number.isFinite);
+  document.getElementById('kpiLatest').textContent=fmt(latestVal);document.getElementById('kpiLatestSub').textContent=periodLabel(latest);
+  const mom=pctChange(latestVal,prevVal);const elMom=document.getElementById('kpiMom');elMom.textContent=fmtPct(mom);elMom.className='kpi-value '+classForPct(mom);
+  const yy=pctChange(latestVal,yoyVal);const elY=document.getElementById('kpiYoy');elY.textContent=fmtPct(yy);elY.className='kpi-value '+classForPct(yy);
+  document.getElementById('kpi12Avg').textContent=fmt(mean(last12Vals));document.getElementById('kpi12AvgSub').textContent=`na osnovu ${last12Vals.length} meseci`;
+  document.getElementById('kpi12Sum').textContent=fmt(last12Vals.reduce((a,b)=>a+b,0));document.getElementById('kpiMedian').textContent=fmt(median(allVals));document.getElementById('kpiMedianSub').textContent=`za ${rows.length} evidentiranih meseci`;
+  renderMainChart();renderInsights(rows,latest,latestVal,allVals,last12Vals,mom,yy);
+}
+function renderMainChart(){const rows=sortedRows();let rr=rows;if(mainRange!=='all')rr=rows.slice(-Number(mainRange));makeChart('main','mainChart','line',rr.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),[{label:'Prihod',data:rr.map(val),borderColor:'#5b5ce2',backgroundColor:'rgba(91,92,226,.10)',borderWidth:2.4,pointRadius:rr.length>80?0:2.2,pointHoverRadius:5,tension:.25,fill:true}]);document.querySelectorAll('#mainRange button').forEach(b=>b.classList.toggle('active',b.dataset.range===String(mainRange)))}
+function renderInsights(rows,latest,latestVal,allVals,last12Vals,mom,yy){
+  const box=document.getElementById('insights');box.innerHTML='';const histAvg=mean(allVals), avg12=mean(last12Vals), pr=percentileRank(allVals,latestVal);
+  const monthlySame=rows.filter(r=>r.month===latest.month).map(val).filter(Number.isFinite);const sameAvg=mean(monthlySame);
+  const recent=rows.slice(-12).map(val).filter(Number.isFinite);const slope=linearSlope(recent);const slopePct=(slope&&mean(recent))?slope/mean(recent)*100:null;
+  const diffs=rows.slice(-8).map(val).filter(Number.isFinite);let streak=0,dir=0;for(let i=diffs.length-1;i>0;i--){const d=Math.sign(diffs[i]-diffs[i-1]);if(!d)break;if(!dir)dir=d;if(d!==dir)break;streak++}
+  const ideas=[
+    `Poslednji prihod je <strong>${fmtPct(pctChange(latestVal,avg12))}</strong> u odnosu na prosek poslednjih 12 meseci.`,
+    yoy?`U odnosu na isti mesec prošle godine promena je <strong class="${classForPct(yy)}">${fmtPct(yy)}</strong>.`:'Nema dostupnog podatka za isti mesec prethodne godine.',
+    sameAvg?`${MONTHS[latest.month-1][0].toUpperCase()+MONTHS[latest.month-1].slice(1)} je trenutno <strong>${fmtPct(pctChange(latestVal,sameAvg))}</strong> u odnosu na istorijski prosek tog meseca.`:'',
+    `Poslednja vrednost je oko <strong>${pr.toFixed(0)}. percentila</strong> svih evidentiranih meseci.`,
+    slopePct!=null?`Linearni trend poslednjih 12 meseci je <strong class="${classForPct(slopePct)}">${slopePct>=0?'uzlazan':'silazan'} (${fmtPct(slopePct)} mesečno)</strong>.`:'',
+    streak?`Trenutni niz: <strong>${streak+1} uzastopna meseca ${dir>0?'rasta':'pada'}</strong>.`:''
+  ].filter(Boolean);ideas.forEach(x=>{const d=document.createElement('div');d.className='insight';d.innerHTML=x;box.appendChild(d)});
+  const mn=Math.min(...allVals),mx=Math.max(...allVals),pos=mx===mn?50:(latestVal-mn)/(mx-mn)*100;document.getElementById('rangeDot').style.left=`${Math.max(0,Math.min(100,pos))}%`;document.getElementById('rangeMin').textContent=fmt(mn);document.getElementById('rangeMax').textContent=fmt(mx);document.getElementById('rangePct').textContent=`${pr.toFixed(0)}. percentil`;
+}
+function linearSlope(vals){if(vals.length<2)return null;const n=vals.length,xm=(n-1)/2,ym=mean(vals);let num=0,den=0;vals.forEach((y,i)=>{num+=(i-xm)*(y-ym);den+=(i-xm)**2});return den?num/den:null}
+
+function renderHistory(){
+  populateYearFilters();const yr=document.getElementById('historyYear').value,typ=document.getElementById('historyType').value,q=document.getElementById('historySearch').value.trim().toLowerCase();
+  let rows=sortedRows().reverse().filter(r=>(yr==='all'||r.year===+yr)&&(typ==='all'||r.type===typ)&&(!q||(r.note||'').toLowerCase().includes(q)));
+  const body=document.getElementById('historyBody');body.innerHTML='';
+  rows.forEach(r=>{const prev=previousRow(r),y=yoyRow(r),rv=val(r),mom=prev?pctChange(rv,val(prev)):null,yy=y?pctChange(rv,val(y)):null;const allSameYear=sortedRows(data.filter(x=>x.year===r.year)).map(val).filter(Number.isFinite);const med=median(allSameYear);const out=med&&rv>med*1.6;const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${MONTHS[r.month-1]}</strong> ${r.year}.</td><td class="num"><strong>${fmt(rv)}</strong></td><td class="num ${classForPct(mom)}">${fmtPct(mom)}</td><td class="num ${classForPct(yy)}">${fmtPct(yy)}</td><td class="num" title="${escapeHtml(r.rateDate?('Kurs važi za '+r.rateDate+' · '+(r.rateSource||'')):(r.rateKind==='monthly-average'?'Mesečni prosečni kurs':''))}">${fmtRate(r.rate||getRate(r.year,r.month))}${r.rateDate?`<div style="font-size:9px;color:#98a2b3;margin-top:2px">${escapeHtml(r.rateDate)}</div>`:''}</td><td><span class="badge ${out?'outlier':''}">${out?'Visok prihod':escapeHtml(r.type||'Prihod')}</span></td><td>${escapeHtml(r.note||'')}</td><td><button class="icon-btn" onclick="editEntry('${r.id}')" title="Izmeni">✎</button><button class="icon-btn" onclick="deleteEntry('${r.id}')" title="Obriši">🗑</button></td>`;body.appendChild(tr)});
+  if(!rows.length)body.innerHTML='<tr><td colspan="8" style="text-align:center;color:#98a2b3;padding:30px">Nema podataka za izabrane filtere.</td></tr>';
+}
+function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]))}
+function populateYearFilters(){const years=[...new Set(data.map(r=>r.year))].sort((a,b)=>b-a),sel=document.getElementById('historyYear');const cur=sel.value||'all';sel.innerHTML='<option value="all">Sve godine</option>'+years.map(y=>`<option>${y}</option>`).join('');sel.value=[...sel.options].some(o=>o.value===cur)?cur:'all'}
+
+function statRows(){const f=+document.getElementById('statsFrom').value,t=+document.getElementById('statsTo').value;return sortedRows(data.filter(r=>r.year>=f&&r.year<=t))}
+function renderStatistics(){populateStatsSelectors();const rows=statRows();if(!rows.length)return;const values=rows.map(val).filter(Number.isFinite),mn=Math.min(...values),mx=Math.max(...values),minR=rows.find(r=>val(r)===mn),maxR=rows.find(r=>val(r)===mx),avg=mean(values),med=median(values),vol=avg?stdev(values)/avg*100:null;
+  document.getElementById('statAvg').textContent=fmt(avg);document.getElementById('statAvgSub').textContent=`medijana ${fmt(med)}`;document.getElementById('statMin').textContent=fmt(mn);document.getElementById('statMinSub').textContent=periodLabel(minR);document.getElementById('statMax').textContent=fmt(mx);document.getElementById('statMaxSub').textContent=periodLabel(maxR);document.getElementById('statVol').textContent=fmtPct(vol)?.replace('+','');
+  const first=rows[0],last=rows.at(-1),months=((last.year-first.year)*12+(last.month-first.month));const years=months/12;const cagr=years>0&&val(first)>0&&val(last)>0?(Math.pow(val(last)/val(first),1/years)-1)*100:null;const c=document.getElementById('statCagr');c.textContent=fmtPct(cagr);c.className='kpi-value '+classForPct(cagr);
+  renderAnnualCharts(rows);renderSeasonality(rows);renderRolling(rows);renderRankings(rows);renderTrendSummary(rows);renderHeatmap(rows);renderCompare();
+}
+function populateStatsSelectors(){const years=[...new Set(data.map(r=>r.year))].sort((a,b)=>a-b);const f=document.getElementById('statsFrom'),t=document.getElementById('statsTo');if(!f.options.length){f.innerHTML=years.map(y=>`<option>${y}</option>`).join('');t.innerHTML=years.map(y=>`<option>${y}</option>`).join('');f.value=years[0];t.value=years.at(-1)}populateCompareSelectors(years)}
+function groupByYear(rows){const m={};rows.forEach(r=>(m[r.year]??=[]).push(r));return m}
+function renderAnnualCharts(rows){const g=groupByYear(rows),years=Object.keys(g);const avgs=years.map(y=>mean(g[y].map(val).filter(Number.isFinite))),totals=years.map(y=>g[y].map(val).filter(Number.isFinite).reduce((a,b)=>a+b,0));makeChart('annualAvg','annualAvgChart','bar',years,[{label:'Prosek',data:avgs,backgroundColor:'rgba(16,185,129,.72)',borderWidth:0}]);makeChart('annualTotal','annualTotalChart','bar',years,[{label:'Godišnji zbir',data:totals,backgroundColor:'rgba(245,158,11,.72)',borderWidth:0}])}
+function renderSeasonality(rows){const arr=MONTHS.map((_,i)=>mean(rows.filter(r=>r.month===i+1).map(val).filter(Number.isFinite)));makeChart('season','seasonChart','bar',MONTHS_SHORT,[{label:'Prosečan prihod',data:arr,backgroundColor:'rgba(6,182,212,.72)',borderWidth:0}])}
+function renderRolling(rows){const vals=rows.map(val);const roll=vals.map((_,i)=>i<11?null:mean(vals.slice(i-11,i+1)));makeChart('rolling','rollingChart','line',rows.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),[{label:'12M prosek',data:roll,borderColor:'#ec4899',backgroundColor:'rgba(236,72,153,.08)',borderWidth:2.3,pointRadius:0,tension:.22,spanGaps:false,fill:true}])}
+function renderRankings(rows){const ranked=[...rows].sort((a,b)=>val(b)-val(a));fillRank('topMonths',ranked.slice(0,5));fillRank('bottomMonths',[...ranked].reverse().slice(0,5))}
+function fillRank(id,rows){const el=document.getElementById(id);el.innerHTML='';rows.forEach((r,i)=>{const d=document.createElement('div');d.className='rank-row';d.innerHTML=`<span class="rank-n">${i+1}</span><div><strong>${MONTHS[r.month-1]} ${r.year}.</strong><small>Kurs ${fmtRate(r.rate||getRate(r.year,r.month))}</small></div><span class="rank-val">${fmt(val(r))}</span>`;el.appendChild(d)})}
+function renderTrendSummary(rows){const vals=rows.map(val).filter(Number.isFinite),recent=vals.slice(-12),slope=linearSlope(recent),sp=slope&&mean(recent)?slope/mean(recent)*100:null;let up=0,down=0;for(let i=1;i<vals.length;i++){if(vals[i]>vals[i-1])up++;else if(vals[i]<vals[i-1])down++}const recent12=rows.slice(-12).map(val).filter(Number.isFinite),prev12=rows.slice(-24,-12).map(val).filter(Number.isFinite),growth=prev12.length?pctChange(mean(recent12),mean(prev12)):null;const el=document.getElementById('trendSummary');el.innerHTML='';[
+  ['12M trend',sp==null?'—':`${sp>=0?'Rast':'Pad'} ${fmtPct(Math.abs(sp))}/mes.`],
+  ['12M vs prethodnih 12M',fmtPct(growth)],
+  ['Meseci rasta',`${up} (${((up/Math.max(1,up+down))*100).toFixed(0)}%)`],
+  ['Meseci pada',`${down} (${((down/Math.max(1,up+down))*100).toFixed(0)}%)`],
+  ['Broj evidencija',`${rows.length}`]
+].forEach((x,i)=>{const d=document.createElement('div');d.className='rank-row';d.innerHTML=`<span class="rank-n">${i+1}</span><div><strong>${x[0]}</strong></div><span class="rank-val">${x[1]}</span>`;el.appendChild(d)})}
+function renderHeatmap(rows){const el=document.getElementById('heatmap');el.innerHTML='';el.appendChild(document.createElement('div'));MONTHS_SHORT.forEach(m=>{const h=document.createElement('div');h.className='hm-head';h.textContent=m;el.appendChild(h)});const values=rows.map(val).filter(Number.isFinite),mn=Math.min(...values),mx=Math.max(...values);[...new Set(rows.map(r=>r.year))].forEach(y=>{const yel=document.createElement('div');yel.className='hm-year';yel.textContent=y;el.appendChild(yel);for(let m=1;m<=12;m++){const r=rows.find(x=>x.year===y&&x.month===m),c=document.createElement('div');if(!r){c.className='hm-cell hm-empty';c.textContent='—'}else{const v=val(r),p=mx===mn?.5:(v-mn)/(mx-mn);c.className='hm-cell';c.style.background=`rgba(91,92,226,${0.08+p*0.72})`;c.style.color=p>.56?'white':'#344054';c.textContent=currency==='EUR'?Math.round(v):Math.round(v/1000)+'k';c.title=`${periodLabel(r)} — ${fmt(v)}`;}el.appendChild(c)}})}
+function populateCompareSelectors(years){['compareA','compareB'].forEach((id,i)=>{const el=document.getElementById(id);if(!el.options.length){el.innerHTML=years.map(y=>`<option>${y}</option>`).join('');el.value=years[Math.max(0,years.length-1-i)]}});const c=document.getElementById('compareC');if(c.options.length===1)c.innerHTML='<option value="">Bez treće godine</option>'+years.map(y=>`<option>${y}</option>`).join('')}
+function renderCompare(){const ys=[document.getElementById('compareA').value,document.getElementById('compareB').value,document.getElementById('compareC').value].filter(Boolean);const compareColors=['#5b5ce2','#10b981','#f59e0b'];const datasets=ys.map((y,idx)=>({label:y,data:MONTHS.map((_,i)=>{const r=rowBy(+y,i+1);return r?val(r):null}),borderColor:compareColors[idx%compareColors.length],backgroundColor:'transparent',borderWidth:2.2,pointRadius:2.5,tension:.2,spanGaps:false}));makeChart('compare','compareChart','line',MONTHS_SHORT,datasets)}
+
+function todayBelgradeLabel(iso){if(!iso)return '';const [y,m,d]=iso.split('-');return `${d}.${m}.${y}.`}
+function setRateNotice(msg,show=true){const el=document.getElementById('rateNotice');el.textContent=msg||'';el.style.display=show?'block':'none'}
+async function fetchDailyRate(force=false){
+  const rateInput=document.getElementById('entryRate'),meta=document.getElementById('rateMeta');
+  if(!force&&dailyRateCache){applyDailyRate(dailyRateCache);return dailyRateCache}
+  meta.textContent='Preuzimam srednji kurs…';setRateNotice('',false);document.getElementById('refreshRate').disabled=true;
+  try{
+    const res=await fetch(RATE_API,{cache:'no-store',headers:{'Accept':'application/json'}});if(!res.ok)throw new Error(`HTTP ${res.status}`);const j=await res.json();const rate=Number(j.exchange_middle);if(!Number.isFinite(rate)||rate<=0)throw new Error('Neispravan kurs');
+    dailyRateCache={rate,date:j.date_from||j.date||null,source:'Kurs API / podaci NBS',kind:'daily-middle'};applyDailyRate(dailyRateCache);return dailyRateCache;
+  }catch(e){console.warn('Rate API:',e);currentRateMeta={date:null,kind:'manual',source:'Ručni unos'};meta.textContent='Automatsko preuzimanje nije uspelo — kurs možeš uneti ručno.';setRateNotice('Servis za automatski kurs trenutno nije dostupan. Unesi srednji EUR/RSD kurs ručno ili pokušaj ponovo dugmetom ↻.');rateInput.placeholder='npr. 117,39';return null}
+  finally{document.getElementById('refreshRate').disabled=false;updateEurPreview()}
+}
+function applyDailyRate(info){document.getElementById('entryRate').value=String(info.rate).replace('.',',');currentRateMeta={date:info.date,kind:info.kind,source:info.source};document.getElementById('rateMeta').textContent=`Srednji kurs ${fmtRate(info.rate)} · ${info.date?'važi za '+todayBelgradeLabel(info.date):'današnji kurs'} · automatski`;setRateNotice('',false);updateEurPreview()}
+function prepareNewEntry(scroll=true){document.getElementById('formTitle').textContent='Novi mesečni prihod';document.getElementById('editId').value='';document.getElementById('cancelEdit').style.display='none';const rows=sortedRows();let y=rows.at(-1)?.year||new Date().getFullYear(),m=(rows.at(-1)?.month||0)+1;if(m>12){m=1;y++}document.getElementById('entryYear').value=y;document.getElementById('entryMonth').value=m;document.getElementById('entryAmount').value='';document.getElementById('entryRate').value='';document.getElementById('entryType').value='Prihod';document.getElementById('entryNote').value='';currentRateMeta={date:null,kind:null,source:null};fetchDailyRate(false);if(scroll){navigate('data');setTimeout(()=>document.getElementById('entryCard').scrollIntoView({behavior:'smooth',block:'start'}),50)}}
+function updateEurPreview(){const a=parseLocaleNumber(document.getElementById('entryAmount').value),r=parseLocaleNumber(document.getElementById('entryRate').value);document.getElementById('entryEurPreview').value=a&&r?new Intl.NumberFormat('sr-RS',{minimumFractionDigits:2,maximumFractionDigits:2}).format(a/r)+' EUR':'—'}
+function saveEntry(){const oldId=document.getElementById('editId').value,y=+document.getElementById('entryYear').value,m=+document.getElementById('entryMonth').value,a=parseLocaleNumber(document.getElementById('entryAmount').value),r=parseLocaleNumber(document.getElementById('entryRate').value),type=document.getElementById('entryType').value,note=document.getElementById('entryNote').value.trim();if(!y||m<1||m>12||!a||a<=0){toast('Proveri godinu, mesec i iznos prihoda.');return}if(!r||r<=0){toast('Kurs EUR/RSD nije učitan. Pokušaj ponovo ili ga unesi ručno.');return}const id=`${y}-${String(m).padStart(2,'0')}`;const duplicate=data.find(x=>x.id===id&&x.id!==oldId);if(duplicate&&!confirm(`Već postoji unos za ${MONTHS[m-1]} ${y}. Zameniti ga?`))return;if(oldId)data=data.filter(x=>x.id!==oldId);if(duplicate)data=data.filter(x=>x.id!==duplicate.id);const existing=oldId?data.find(x=>x.id===oldId):null;data.push({id,year:y,month:m,amount:a,rate:r,rateDate:currentRateMeta.date||null,rateKind:currentRateMeta.kind||'manual',rateSource:currentRateMeta.source||'Ručni unos',type,note});persist();toast('Prihod je sačuvan i šalje se u Firebase.');prepareNewEntry(false);renderAll();navigate('dashboard')}
+window.editEntry=function(id){const r=data.find(x=>x.id===id);if(!r)return;navigate('data');document.getElementById('formTitle').textContent=`Izmena — ${periodLabel(r)}`;document.getElementById('editId').value=r.id;document.getElementById('entryYear').value=r.year;document.getElementById('entryMonth').value=r.month;document.getElementById('entryAmount').value=new Intl.NumberFormat('sr-RS',{minimumFractionDigits:2,maximumFractionDigits:2}).format(r.amount);document.getElementById('entryRate').value=String(r.rate||getRate(r.year,r.month)||'').replace('.',',');currentRateMeta={date:r.rateDate||null,kind:r.rateKind||'monthly-average',source:r.rateSource||'Sačuvani kurs'};document.getElementById('rateMeta').textContent=r.rateDate?`Sačuvani kurs · važi za ${todayBelgradeLabel(r.rateDate)}`:'Sačuvani istorijski kurs';document.getElementById('entryType').value=r.type||'Prihod';document.getElementById('entryNote').value=r.note||'';document.getElementById('cancelEdit').style.display='inline-block';setRateNotice('',false);updateEurPreview();setTimeout(()=>document.getElementById('entryCard').scrollIntoView({behavior:'smooth'}),40)}
+window.deleteEntry=function(id){const r=data.find(x=>x.id===id);if(!r)return;if(confirm(`Obrisati prihod za ${periodLabel(r)} iz Firebase baze?`)){data=data.filter(x=>x.id!==id);persist();renderAll();toast('Unos je obrisan.')}}
+
+function exportJson(){const payload={app:'Moji Prihodi',version:'1.1-cloud',exportedAt:new Date().toISOString(),currency,data:sortedRows()};downloadBlob(JSON.stringify(payload,null,2),'moji-prihodi-backup.json','application/json')}
+function csvEscape(x){const s=String(x??'');return /[",\n;]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
+function exportCsv(){const head=['godina','mesec','iznos_rsd','kurs_eur','datum_kursa','vrsta_kursa','izvor_kursa','tip','napomena'];const lines=[head.join(';'),...sortedRows().map(r=>[r.year,r.month,r.amount.toFixed(2),r.rate??'',r.rateDate??'',r.rateKind??'',r.rateSource??'',r.type??'',r.note??''].map(csvEscape).join(';'))];downloadBlob('\uFEFF'+lines.join('\n'),'moji-prihodi.csv','text/csv;charset=utf-8')}
+function downloadBlob(content,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function parseCsv(text){const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(Boolean);const sep=lines[0].includes(';')?';':',';function split(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(ch===sep&&!q){out.push(cur);cur=''}else cur+=ch}out.push(cur);return out}const h=split(lines[0]).map(x=>x.trim().toLowerCase());return lines.slice(1).map(line=>{const a=split(line),get=(...names)=>{for(const n of names){const i=h.indexOf(n);if(i>=0)return a[i]}return ''};const y=+get('godina','year'),m=+get('mesec','month'),amount=parseLocaleNumber(get('iznos_rsd','amount','prihod')),rate=parseLocaleNumber(get('kurs_eur','rate','kurs'));return {id:`${y}-${String(m).padStart(2,'0')}`,year:y,month:m,amount,rate,rateDate:get('datum_kursa','rate_date')||null,rateKind:get('vrsta_kursa','rate_kind')||'import',rateSource:get('izvor_kursa','rate_source')||'Import',type:get('tip','type')||'Prihod',note:get('napomena','note')||''}}).filter(r=>r.year&&r.month&&r.amount)}
+async function importFile(file){try{const text=await file.text();let rows;if(file.name.toLowerCase().endsWith('.json')){const obj=JSON.parse(text);rows=Array.isArray(obj)?obj:obj.data}else rows=parseCsv(text);if(!Array.isArray(rows)||!rows.length)throw new Error('Nema podataka');const clean=rows.map((r,i)=>({id:r.id||`${+r.year}-${String(+r.month).padStart(2,'0')}`,year:+r.year,month:+r.month,amount:+r.amount,rate:r.rate?+r.rate:(MONTHLY_RATES[r.year]?.[r.month-1]??null),rateDate:r.rateDate||null,rateKind:r.rateKind||'import',rateSource:r.rateSource||'Import',type:r.type||'Prihod',note:r.note||''})).filter(r=>r.year&&r.month>=1&&r.month<=12&&r.amount>0);if(!clean.length)throw new Error('Neispravan format');if(!confirm(`Uvesti ${clean.length} zapisa i zameniti trenutne podatke?`))return;data=clean;persist();renderAll();toast('Podaci su uspešno uvezeni i šalju se u Firebase.');navigate('dashboard')}catch(e){toast('Import nije uspeo: '+e.message)}}
+
+function renderAll(){const empty=!data.length;document.getElementById('emptyCloudBanner').classList.toggle('show',cloudReady&&empty);renderDashboard();renderHistory();if(!empty&&document.getElementById('statistics').classList.contains('active'))renderStatistics();document.getElementById('rsdBtn').classList.toggle('active',currency==='RSD');document.getElementById('eurBtn').classList.toggle('active',currency==='EUR')}
+function showAuthGate(message='Prijavi se Google nalogom da bi pristupio svojim podacima u Firebase bazi.',error=''){document.getElementById('authGate').classList.remove('hidden');document.getElementById('authText').textContent=message;document.getElementById('authError').textContent=error}
+function hideAuthGate(){document.getElementById('authGate').classList.add('hidden')}
+function fillUserChip(user){document.getElementById('userChip').style.display='flex';document.getElementById('userName').textContent=user.displayName||user.email||'Google nalog';const p=document.getElementById('userPhoto');if(user.photoURL){p.src=user.photoURL;p.style.display='block'}else p.style.display='none'}
+async function startCloudSync(user){
+  if(cloudUnsub)cloudUnsub();cloudReady=false;currentUser=user;fillUserChip(user);showAuthGate('Proveravam pristup Firebase bazi…','');
+  cloudUnsub=cloudDoc.onSnapshot(async snap=>{
+    if(!cloudReady){cloudReady=true;hideAuthGate();setSyncStatus('Sinhronizovano')}
+    if(snap.exists){const payload=snap.data()||{};const incoming=Array.isArray(payload.incomes)?payload.incomes:(Array.isArray(payload.data)?payload.data:[]);applyingRemote=true;data=incoming;applyingRemote=false;renderAll();if(!data.length&&legacyLocalData.length){data=legacyLocalData;await saveCloudData();localStorage.removeItem(STORAGE_KEY);toast('Podaci iz V1.0 su preneti u Firebase.')}}
+    else if(legacyLocalData.length){data=legacyLocalData;renderAll();await cloudDoc.set({incomes:sortedRows(),schema:2,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:user.uid});localStorage.removeItem(STORAGE_KEY);toast('Istorija iz V1.0 je automatski preneta u Firebase.')}
+    else{data=[];renderAll();navigate('data');toast('Baza je prazna — uvezi početni JSON jednom.')}
+  },async err=>{console.error(err);cloudReady=false;setSyncStatus('Nema pristupa','error');if(err&&err.code==='permission-denied'){document.getElementById('userChip').style.display='none';await auth.signOut();showAuthGate('Prijavi se Google nalogom koji ima pristup aplikaciji.','Ovaj Google nalog nema dozvolu za Firebase podatke.')}else showAuthGate('Firebase trenutno nije dostupan.','Proveri internet vezu i pokušaj ponovo.')});
+}
+async function reloadCloud(){if(!currentUser)return;try{setSyncStatus('Učitavanje…','busy');const snap=await cloudDoc.get();if(snap.exists){const p=snap.data()||{};data=Array.isArray(p.incomes)?p.incomes:[];renderAll();setSyncStatus('Sinhronizovano');toast('Podaci su ponovo učitani iz Firebase-a.')}}catch(e){setSyncStatus('Greška','error');toast('Ponovno učitavanje nije uspelo.')}}
+function init(){
+  document.getElementById('entryMonth').innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}">${m[0].toUpperCase()+m.slice(1)}</option>`).join('');
+  document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.page)));document.getElementById('rsdBtn').onclick=()=>setCurrency('RSD');document.getElementById('eurBtn').onclick=()=>setCurrency('EUR');document.getElementById('quickAdd').onclick=()=>prepareNewEntry(true);
+  document.querySelectorAll('#mainRange button').forEach(b=>b.onclick=()=>{mainRange=b.dataset.range;persistSettings();renderMainChart()});
+  ['historyYear','historyType'].forEach(id=>document.getElementById(id).addEventListener('change',renderHistory));document.getElementById('historySearch').addEventListener('input',renderHistory);document.getElementById('historyReset').onclick=()=>{document.getElementById('historyYear').value='all';document.getElementById('historyType').value='all';document.getElementById('historySearch').value='';renderHistory()};
+  ['statsFrom','statsTo'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{let f=+document.getElementById('statsFrom').value,t=+document.getElementById('statsTo').value;if(f>t){if(id==='statsFrom')document.getElementById('statsTo').value=f;else document.getElementById('statsFrom').value=t}renderStatistics()}));document.getElementById('statsAll').onclick=()=>{const ys=[...new Set(data.map(r=>r.year))].sort((a,b)=>a-b);if(!ys.length)return;document.getElementById('statsFrom').value=ys[0];document.getElementById('statsTo').value=ys.at(-1);renderStatistics()};['compareA','compareB','compareC'].forEach(id=>document.getElementById(id).addEventListener('change',renderCompare));
+  document.getElementById('entryAmount').addEventListener('input',updateEurPreview);document.getElementById('entryRate').addEventListener('input',()=>{if(document.activeElement===document.getElementById('entryRate')){currentRateMeta={date:currentRateMeta.date,kind:'manual',source:'Ručni unos'};document.getElementById('rateMeta').textContent='Kurs je ručno izmenjen.'}updateEurPreview()});document.getElementById('refreshRate').onclick=()=>fetchDailyRate(true);document.getElementById('saveEntry').onclick=saveEntry;document.getElementById('cancelEdit').onclick=()=>prepareNewEntry(false);
+  document.getElementById('exportJson').onclick=exportJson;document.getElementById('exportCsv').onclick=exportCsv;document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('seedImportBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('importFile').addEventListener('change',e=>{if(e.target.files[0])importFile(e.target.files[0]);e.target.value=''});document.getElementById('reloadCloud').onclick=reloadCloud;
+  document.getElementById('googleLogin').onclick=async()=>{document.getElementById('authError').textContent='';try{await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);await auth.signInWithPopup(provider)}catch(e){document.getElementById('authError').textContent=e.code==='auth/popup-closed-by-user'?'Prijava je otkazana.':'Google prijava nije uspela.'}};document.getElementById('logoutBtn').onclick=()=>auth.signOut();
+  auth.onAuthStateChanged(user=>{if(user)startCloudSync(user);else{currentUser=null;cloudReady=false;if(cloudUnsub){cloudUnsub();cloudUnsub=null}document.getElementById('userChip').style.display='none';showAuthGate();}});
+  prepareNewEntry(false);setCurrency(currency);renderAll();
+}
+init();
+</script>
+</body>
+</html>

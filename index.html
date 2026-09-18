@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#111827" />
-  <title>Moji Prihodi — v1.4 Mobile</title>
+  <title>Moji Prihodi — v1.5 Mobile</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -36,6 +36,7 @@
     .dashboard-main{grid-template-columns:minmax(0,2fr) minmax(320px,1fr)}.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.section-title h2{font-size:18px;margin:0}.section-title p{margin:3px 0 0;color:var(--muted);font-size:13px}.segmented{display:flex;gap:3px;background:#f1f3f8;padding:3px;border-radius:10px}.segmented button{border:0;background:transparent;border-radius:8px;padding:6px 9px;font-size:12px;font-weight:750;color:#667085}.segmented button.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(15,23,42,.08)}
     .chart-wrap{position:relative;height:365px}.chart-wrap.medium{height:320px}.chart-wrap.small{height:275px}
     .insights{display:flex;flex-direction:column;gap:10px}.insight{padding:12px 13px;border-radius:14px;background:#f8fafc;border:1px solid #eef2f6;font-size:13px;line-height:1.45}.insight strong{color:#344054}
+    .insight-item{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:flex-start;padding:12px;border-radius:14px;border:1px solid #edf1f6;background:linear-gradient(180deg,#fbfcfe,#f8fafc)}.insight-item.hidden-insight{display:none}.insight-ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#eef2ff;color:#4f46e5;font-weight:900;font-size:15px}.insight-item.good .insight-ico{background:#ecfdf3;color:#039855}.insight-item.warn .insight-ico{background:#fff7ed;color:#ea580c}.insight-item.bad .insight-ico{background:#fff1f2;color:#e11d48}.insight-item.info .insight-ico{background:#eff8ff;color:#1570ef}.insight-copy strong{display:block;font-size:13px;color:#101828;margin-bottom:2px}.insight-copy span{display:block;font-size:12px;color:#667085;line-height:1.42}.insight-more{width:100%;margin-top:2px;border:0;background:transparent;color:#5b5ce2;font-weight:800;font-size:12px;padding:8px;cursor:pointer;border-radius:10px}.insight-more:hover{background:#f4f3ff}.insights-empty{padding:16px;text-align:center;color:#98a2b3;font-size:12px}
     .range-box{margin-top:14px;padding:14px;border-radius:14px;background:#f8fafc}.range-track{height:12px;border-radius:999px;background:linear-gradient(90deg,#fca5a5,#fde68a,#86efac);position:relative;margin:12px 3px 7px}.range-dot{position:absolute;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);border:3px solid #fff;border-radius:50%;background:#1f2937;box-shadow:0 2px 8px rgba(0,0,0,.25)}.range-labels{display:flex;justify-content:space-between;color:#667085;font-size:11px}
     .smart-section{margin:0 0 16px}.smart-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 2px 10px}.smart-title h2{font-size:16px;margin:0}.smart-title p{font-size:12px;color:var(--muted);margin:3px 0 0}.smart-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.smart-card{position:relative;overflow:hidden;min-height:124px;padding:15px}.smart-card:after{content:'';position:absolute;width:72px;height:72px;border-radius:50%;right:-22px;top:-24px;background:rgba(91,92,226,.07)}.smart-icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#f2f4ff;color:#5556d9;font-size:15px;margin-bottom:9px}.smart-card h3{font-size:11px;text-transform:uppercase;letter-spacing:.035em;margin:0;color:#7b8190}.smart-value{font-size:21px;font-weight:850;letter-spacing:-.025em;margin-top:5px;white-space:nowrap}.smart-sub{font-size:10px;color:#7b8190;line-height:1.35;margin-top:6px}.smart-card.good .smart-icon{background:#ecfdf5;color:#059669}.smart-card.warm .smart-icon{background:#fff7ed;color:#d97706}.smart-card.blue .smart-icon{background:#eff6ff;color:#2563eb}.smart-card.pink .smart-icon{background:#fdf2f8;color:#db2777}
     .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:14px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:12px;color:#667085;font-weight:700}.field input,.field select,.field textarea{border:1px solid #dfe4ec;border-radius:11px;padding:10px 11px;background:#fff;color:#1f2937;outline:none;min-width:120px}.field input:focus,.field select:focus,.field textarea:focus{border-color:#9b8afb;box-shadow:0 0 0 3px rgba(91,92,226,.11)}
@@ -55,7 +56,7 @@
     @media(max-width:470px){.smart-grid{grid-template-columns:1fr}.real-kpis{grid-template-columns:1fr}.brand h1{font-size:17px}.brand-icon{width:40px;height:40px}.topbar{flex-direction:column}.top-actions{width:100%;justify-content:space-between}.kpis,.stats-kpis,.stats-grid-2,.stats-grid-3{grid-template-columns:1fr}.nav{margin:12px 0}.kpi-value{font-size:26px}}
 
 
-    /* v1.4 — mobile-first shell and bottom tabs */
+    /* v1.5 — mobile-first shell and bottom tabs */
     body{padding-bottom:calc(92px + env(safe-area-inset-bottom));}
     .app{padding-bottom:110px}
     .nav.bottom-nav{
@@ -93,7 +94,7 @@
       .dashboard-main,.data-grid,.real-grid{grid-template-columns:1fr;gap:9px}.dashboard-main{margin-top:0}
       .section-title{align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px}.section-title h2{font-size:15px}.section-title p{font-size:10.5px;line-height:1.3}.segmented{width:100%;padding:3px}.segmented button{flex:1;padding:6px 5px;font-size:10px}
       .chart-wrap{height:245px}.chart-wrap.medium{height:235px}.chart-wrap.small{height:215px}
-      .insights{gap:7px}.insight{padding:10px 11px;border-radius:12px;font-size:11px;line-height:1.38}
+      .insights{gap:7px}.insight{padding:10px 11px;border-radius:12px;font-size:11px;line-height:1.38}.insight-item{grid-template-columns:30px 1fr;gap:8px;padding:9px;border-radius:12px}.insight-ico{width:30px;height:30px;border-radius:10px;font-size:13px}.insight-copy strong{font-size:11.5px}.insight-copy span{font-size:10.5px;line-height:1.35}.insight-more{font-size:11px;padding:7px}
       .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;margin-bottom:10px}.filters .field{min-width:0!important}.filters .field input,.filters .field select,.filters .field textarea{width:100%;min-width:0;padding:9px 9px;font-size:12px}.filters .field[style*="flex:1"]{grid-column:1/-1}.filters>.btn{grid-column:1/-1}.field label{font-size:10px}
       .stats-kpis,.real-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}.stats-grid-2,.stats-grid-3{grid-template-columns:1fr;gap:9px;margin-bottom:10px}
       .form-card .form-grid{grid-template-columns:1fr;gap:9px}.form-actions,.settings-actions{gap:7px}.form-actions .btn,.settings-actions .btn{flex:1;min-width:120px}
@@ -140,7 +141,7 @@
 </div>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.4 Mobile</small></div></div>
+    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.5 Mobile</small></div></div>
     <div class="top-actions">
       <div class="currency-switch"><button id="rsdBtn" class="active">RSD</button><button id="eurBtn">EUR</button></div>
       <div class="user-chip" id="userChip" style="display:none"><img id="userPhoto" alt=""><div class="who"><strong id="userName">Google nalog</strong><span class="sync-status" id="syncStatus"><span class="cloud-dot"></span>Firebase</span></div><button class="logout-btn" id="logoutBtn" title="Odjavi se">⎋</button></div>
@@ -186,7 +187,7 @@
           <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
         </div>
         <div class="card">
-          <div class="section-title"><div><h2>Automatski uvidi</h2><p>Najvažnije što podaci trenutno govore</p></div></div>
+          <div class="section-title"><div><h2>Automatski uvidi</h2><p>3 najvažnija signala iz trenutnih podataka</p></div></div>
           <div id="insights" class="insights"></div>
 
         </div>
@@ -302,7 +303,7 @@
       </div>
     </section>
   </main>
-  <div class="footer">Moji Prihodi v1.4 Mobile · Firebase + Google prijava · optimizovano za telefon</div>
+  <div class="footer">Moji Prihodi v1.5 Mobile · Firebase + Google prijava · optimizovano za telefon</div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -429,25 +430,52 @@ function renderSmartWidgets(rows,latest){
 
 function renderMainChart(){const rows=sortedRows();let rr=rows;if(mainRange!=='all')rr=rows.slice(-Number(mainRange));makeChart('main','mainChart','line',rr.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),[{label:'Prihod',data:rr.map(val),borderColor:'#5b5ce2',backgroundColor:'rgba(91,92,226,.10)',borderWidth:2.4,pointRadius:rr.length>80?0:2.2,pointHoverRadius:5,tension:.25,fill:true}]);document.querySelectorAll('#mainRange button').forEach(b=>b.classList.toggle('active',b.dataset.range===String(mainRange)))}
 function renderInsights(rows,latest,latestVal,allVals,last12Vals,mom,yy){
-  const box=document.getElementById('insights');box.innerHTML='';const histAvg=mean(allVals), avg12=mean(last12Vals), pr=percentileRank(allVals,latestVal);
-  const monthlySame=rows.filter(r=>r.month===latest.month).map(val).filter(Number.isFinite);const sameAvg=mean(monthlySame);
-  const recent=rows.slice(-12).map(val).filter(Number.isFinite);const slope=linearSlope(recent);const slopePct=(slope&&mean(recent))?slope/mean(recent)*100:null;
-  const prev12=rows.slice(-24,-12).map(val).filter(Number.isFinite), rollingGrowth=prev12.length?pctChange(mean(recent),mean(prev12)):null;
-  const ytd=rows.filter(r=>r.year===latest.year&&r.month<=latest.month).map(val).filter(Number.isFinite), prevYtd=rows.filter(r=>r.year===latest.year-1&&r.month<=latest.month).map(val).filter(Number.isFinite);
-  const ytdGrowth=prevYtd.length?pctChange(ytd.reduce((a,b)=>a+b,0),prevYtd.reduce((a,b)=>a+b,0)):null, med12=median(recent), exceptional=med12&&latestVal>med12*1.5;
-  const diffs=rows.slice(-8).map(val).filter(Number.isFinite);let streak=0,dir=0;for(let i=diffs.length-1;i>0;i--){const d=Math.sign(diffs[i]-diffs[i-1]);if(!d)break;if(!dir)dir=d;if(d!==dir)break;streak++}
-  const ideas=[
-    `Poslednji prihod je <strong>${fmtPct(pctChange(latestVal,avg12))}</strong> u odnosu na prosek poslednjih 12 meseci.`,
-    yoy?`U odnosu na isti mesec prošle godine promena je <strong class="${classForPct(yy)}">${fmtPct(yy)}</strong>.`:'Nema dostupnog podatka za isti mesec prethodne godine.',
-    sameAvg?`${MONTHS[latest.month-1][0].toUpperCase()+MONTHS[latest.month-1].slice(1)} je trenutno <strong>${fmtPct(pctChange(latestVal,sameAvg))}</strong> u odnosu na istorijski prosek tog meseca.`:'',
-    `Poslednja vrednost je oko <strong>${pr.toFixed(0)}. percentila</strong> svih evidentiranih meseci.`,
-    slopePct!=null?`Linearni trend poslednjih 12 meseci je <strong class="${classForPct(slopePct)}">${slopePct>=0?'uzlazan':'silazan'} (${fmtPct(slopePct)} mesečno)</strong>.`:'',
-    ytdGrowth!=null?`Ukupan prihod od januara do ${MONTHS[latest.month-1]} je <strong class="${classForPct(ytdGrowth)}">${fmtPct(ytdGrowth)}</strong> u odnosu na isti period ${latest.year-1}.`:'' ,
-    rollingGrowth!=null?`Prosečan prihod u poslednjih 12 meseci je <strong class="${classForPct(rollingGrowth)}">${fmtPct(rollingGrowth)}</strong> u odnosu na prethodnih 12 meseci.`:'',
-    exceptional?`Poslednji prihod je više od <strong>50% iznad 12M medijane</strong> — izgleda kao bonus ili drugi izuzetan mesec.`:'',
-    streak?`Trenutni niz: <strong>${streak+1} uzastopna meseca ${dir>0?'rasta':'pada'}</strong>.`:''
-  ].filter(Boolean);ideas.forEach(x=>{const d=document.createElement('div');d.className='insight';d.innerHTML=x;box.appendChild(d)});
-  const mn=Math.min(...allVals),mx=Math.max(...allVals),pos=mx===mn?50:(latestVal-mn)/(mx-mn)*100;document.getElementById('rangeDot').style.left=`${Math.max(0,Math.min(100,pos))}%`;document.getElementById('rangeMin').textContent=fmt(mn);document.getElementById('rangeMax').textContent=fmt(mx);document.getElementById('rangePct').textContent=`${pr.toFixed(0)}. percentil`;
+  const box=document.getElementById('insights');
+  if(!box)return;
+  box.innerHTML='';
+  try{
+    const avg12=mean(last12Vals), pr=percentileRank(allVals,latestVal);
+    const monthlySame=rows.filter(r=>r.month===latest.month).map(val).filter(Number.isFinite), sameAvg=mean(monthlySame);
+    const recent=rows.slice(-12).map(val).filter(Number.isFinite), prev12=rows.slice(-24,-12).map(val).filter(Number.isFinite);
+    const slope=linearSlope(recent), slopePct=(slope!=null&&mean(recent))?slope/mean(recent)*100:null;
+    const rollingGrowth=prev12.length>=6?pctChange(mean(recent),mean(prev12)):null;
+    const ytdRows=rows.filter(r=>r.year===latest.year&&r.month<=latest.month), prevYtdRows=rows.filter(r=>r.year===latest.year-1&&r.month<=latest.month);
+    const ytd=ytdRows.map(val).filter(Number.isFinite), prevYtd=prevYtdRows.map(val).filter(Number.isFinite);
+    const ytdGrowth=(prevYtd.length===ytd.length&&prevYtd.length)?pctChange(ytd.reduce((a,b)=>a+b,0),prevYtd.reduce((a,b)=>a+b,0)):null;
+    const med12=median(recent), exceptional=med12&&latestVal>med12*1.5;
+    const previousValues=rows.slice(0,-1).map(val).filter(Number.isFinite), previousMax=previousValues.length?Math.max(...previousValues):null;
+    const isRecord=previousMax!=null&&latestVal>previousMax;
+    const latestVsAvg=pctChange(latestVal,avg12), latestVsSameAvg=sameAvg?pctChange(latestVal,sameAvg):null;
+    let streak=1,dir=0;for(let i=rows.length-1;i>0;i--){const a=val(rows[i]),b=val(rows[i-1]);if(!Number.isFinite(a)||!Number.isFinite(b)||a===b)break;const d=Math.sign(a-b);if(!dir)dir=d;if(d!==dir)break;streak++}
+    const insights=[];
+    const add=(score,title,text,icon='↗',tone='info')=>insights.push({score,title,text,icon,tone});
+
+    if(isRecord) add(100,'Novi istorijski maksimum',`Poslednji prihod od <strong>${fmt(latestVal)}</strong> je najveći zabeleženi mesečni prihod u evidenciji.`, '★','good');
+    if(exceptional) add(94,'Mogući bonus ili izuzetan mesec',`Poslednji prihod je <strong>${fmtPct(pctChange(latestVal,med12))}</strong> iznad medijane poslednjih 12 meseci.`, '◆','warn');
+    if(ytdGrowth!=null) add(88+Math.min(8,Math.abs(ytdGrowth)/3), ytdGrowth>=0?'Tekuća godina je ispred prošle':'Tekuća godina zaostaje za prošlom',`Prihod od januara do ${MONTHS[latest.month-1]} je <strong class="${classForPct(ytdGrowth)}">${fmtPct(ytdGrowth)}</strong> u odnosu na isti period ${latest.year-1}.`, ytdGrowth>=0?'Σ':'↓', ytdGrowth>=0?'good':'bad');
+    if(rollingGrowth!=null) add(82+Math.min(8,Math.abs(rollingGrowth)/3), rollingGrowth>=0?'Dugoročni prosek raste':'Dugoročni prosek pada',`Prosek poslednjih 12 meseci je <strong class="${classForPct(rollingGrowth)}">${fmtPct(rollingGrowth)}</strong> u odnosu na prethodnih 12 meseci.`, rollingGrowth>=0?'↗':'↘', rollingGrowth>=0?'good':'bad');
+
+    // Real purchasing-power insight, when CPI coverage exists for both 12M windows.
+    if(typeof realRsd==='function'){
+      const r12=rows.slice(-12).map(realRsd).filter(Number.isFinite), rp12=rows.slice(-24,-12).map(realRsd).filter(Number.isFinite);
+      if(r12.length>=6&&rp12.length>=6){const rg=pctChange(mean(r12),mean(rp12));if(rg!=null)add(79+Math.min(7,Math.abs(rg)/3),rg>=0?'Kupovna moć raste':'Kupovna moć slabi',`Realni prosek poslednjih 12 meseci je <strong class="${classForPct(rg)}">${fmtPct(rg)}</strong> u odnosu na prethodnih 12 meseci, nakon korekcije za inflaciju.`,rg>=0?'₿':'↓',rg>=0?'good':'bad')}
+    }
+    if(yy!=null) add(72+Math.min(8,Math.abs(yy)/4),yy>=0?'Bolje nego isti mesec prošle godine':'Slabije nego isti mesec prošle godine',`Promena u odnosu na ${MONTHS[latest.month-1]} ${latest.year-1}. iznosi <strong class="${classForPct(yy)}">${fmtPct(yy)}</strong>.`,yy>=0?'Y':'↓',yy>=0?'good':'bad');
+    if(latestVsAvg!=null) add(65+Math.min(7,Math.abs(latestVsAvg)/5),latestVsAvg>=0?'Iznad 12M proseka':'Ispod 12M proseka',`Poslednji prihod je <strong>${fmtPct(latestVsAvg)}</strong> u odnosu na prosek poslednjih 12 meseci.`, '≈', latestVsAvg>=0?'info':'warn');
+    if(latestVsSameAvg!=null) add(61+Math.min(7,Math.abs(latestVsSameAvg)/5),`Kako stoji ovaj ${MONTHS[latest.month-1]}`,`U odnosu na istorijski prosek za ${MONTHS[latest.month-1]}, trenutni prihod je <strong>${fmtPct(latestVsSameAvg)}</strong>.`, '◷','info');
+    if(streak>=3) add(58+Math.min(6,streak),`Niz od ${streak} meseca ${dir>0?'rasta':'pada'}`,`Poslednjih <strong>${streak} evidentiranih meseci</strong> kreće se uzastopno ${dir>0?'naviše':'naniže'}.`,dir>0?'↑':'↓',dir>0?'good':'warn');
+    if(slopePct!=null) add(52+Math.min(6,Math.abs(slopePct)*2),`12M trend je ${slopePct>=0?'uzlazan':'silazan'}`,`Linearna putanja poslednjih 12 meseci iznosi približno <strong>${fmtPct(slopePct)}</strong> mesečno.`,slopePct>=0?'⌁':'⌄',slopePct>=0?'info':'warn');
+    if(pr!=null) add(45,'Istorijska pozicija',`Poslednji prihod je oko <strong>${pr.toFixed(0)}. percentila</strong> svih evidentiranih meseci.`, '◉','info');
+
+    insights.sort((a,b)=>b.score-a.score);
+    const unique=[];const titles=new Set();for(const x of insights){if(!titles.has(x.title)){titles.add(x.title);unique.push(x)}}
+    if(!unique.length){box.innerHTML='<div class="insights-empty">Biće prikazani čim postoji dovoljno podataka za poređenje.</div>';return}
+    unique.slice(0,6).forEach((x,i)=>{
+      const d=document.createElement('div');d.className=`insight-item ${x.tone}${i>=3?' hidden-insight':''}`;
+      d.innerHTML=`<div class="insight-ico">${x.icon}</div><div class="insight-copy"><strong>${x.title}</strong><span>${x.text}</span></div>`;box.appendChild(d)
+    });
+    if(unique.length>3){const btn=document.createElement('button');btn.className='insight-more';btn.type='button';btn.textContent=`Prikaži još (${Math.min(unique.length,6)-3})`;let open=false;btn.addEventListener('click',()=>{open=!open;box.querySelectorAll('.hidden-insight').forEach(el=>el.style.display=open?'grid':'none');btn.textContent=open?'Prikaži manje':`Prikaži još (${Math.min(unique.length,6)-3})`});box.appendChild(btn)}
+  }catch(err){console.error('Insights error',err);box.innerHTML='<div class="insights-empty">Uvidi trenutno nisu dostupni. Ostale statistike i podaci nisu pogođeni.</div>'}
 }
 function linearSlope(vals){if(vals.length<2)return null;const n=vals.length,xm=(n-1)/2,ym=mean(vals);let num=0,den=0;vals.forEach((y,i)=>{num+=(i-xm)*(y-ym);den+=(i-xm)**2});return den?num/den:null}
 

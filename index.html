@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#111827" />
-  <title>Moji Prihodi — v1.3 Cloud</title>
+  <title>Moji Prihodi — v1.4 Mobile</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -53,6 +53,79 @@
     @media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.real-kpis{grid-template-columns:repeat(3,1fr)}.real-grid{grid-template-columns:1fr}.smart-grid{grid-template-columns:repeat(3,1fr)}.stats-kpis{grid-template-columns:repeat(3,1fr)}.stats-grid-3{grid-template-columns:1fr 1fr}.dashboard-main{grid-template-columns:1fr}.data-grid{grid-template-columns:1fr}}
     @media(max-width:760px){.smart-grid{grid-template-columns:1fr 1fr}.real-kpis{grid-template-columns:1fr 1fr}.app{padding:10px}.topbar{top:6px;padding:12px;border-radius:18px;align-items:flex-start}.brand small{display:none}.top-actions{gap:6px}.top-actions .btn.primary{padding:9px 10px}.kpis,.stats-kpis,.stats-grid-2,.stats-grid-3{grid-template-columns:1fr 1fr}.kpi-value{font-size:23px}.card{padding:14px;border-radius:16px}.chart-wrap{height:290px}.data-grid{grid-template-columns:1fr}.form-card .form-grid{grid-template-columns:1fr}.currency-switch button{padding:7px 9px}}
     @media(max-width:470px){.smart-grid{grid-template-columns:1fr}.real-kpis{grid-template-columns:1fr}.brand h1{font-size:17px}.brand-icon{width:40px;height:40px}.topbar{flex-direction:column}.top-actions{width:100%;justify-content:space-between}.kpis,.stats-kpis,.stats-grid-2,.stats-grid-3{grid-template-columns:1fr}.nav{margin:12px 0}.kpi-value{font-size:26px}}
+
+
+    /* v1.4 — mobile-first shell and bottom tabs */
+    body{padding-bottom:calc(92px + env(safe-area-inset-bottom));}
+    .app{padding-bottom:110px}
+    .nav.bottom-nav{
+      position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);
+      z-index:1000;width:min(720px,calc(100% - 18px));margin:0;padding:7px;gap:3px;overflow:visible;
+      background:rgba(255,255,255,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+      border:1px solid rgba(226,232,240,.92);border-radius:21px;box-shadow:0 14px 40px rgba(15,23,42,.17)
+    }
+    .nav.bottom-nav button{flex:1;min-width:0;padding:7px 4px 6px;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#7b8190;font-weight:750;line-height:1;background:transparent;transition:.18s}
+    .nav.bottom-nav button.active{background:#f1efff;color:var(--primary);box-shadow:none}
+    .nav-icon{font-size:19px;line-height:20px;height:20px;font-weight:850}
+    .nav-label{font-size:10px;line-height:13px;white-space:nowrap}
+    .range-smart-card{min-height:124px}
+    .range-caption{margin-top:5px;line-height:1.2}
+    .smart-range-track{margin:13px 2px 7px;height:10px}
+    .smart-range-labels{font-size:9px;gap:4px}.smart-range-labels span{max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.smart-range-labels span:nth-child(2){max-width:none;font-weight:800;color:#475467}
+
+    @media(max-width:760px){
+      :root{--radius:16px;--shadow:0 7px 22px rgba(15,23,42,.065)}
+      body{background:linear-gradient(180deg,#f7f9ff 0%,#f5f8fb 52%,#fffaf5 100%)}
+      .app{padding:7px 7px calc(108px + env(safe-area-inset-bottom))}
+      .topbar{top:5px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:9px 10px;border-radius:17px;align-items:center}
+      .brand{gap:8px}.brand-icon{width:38px;height:38px;border-radius:12px;font-size:20px}.brand h1{font-size:16px}.brand small{display:none}
+      .top-actions{gap:4px;flex-wrap:nowrap;justify-content:flex-end}
+      .currency-switch{padding:3px;border-radius:10px}.currency-switch button{padding:6px 8px;font-size:11px;border-radius:8px}
+      .user-chip{max-width:none;padding:3px 4px!important;gap:3px!important}.user-chip .who{display:none}.user-chip img{width:28px!important;height:28px!important}.logout-btn{width:28px!important;height:28px!important;font-size:15px!important}
+      #quickAdd{position:fixed;right:15px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:1005;width:54px;height:54px;padding:0;border-radius:50%;font-size:0;display:grid;place-items:center;box-shadow:0 12px 28px rgba(91,92,226,.35)}
+      #quickAdd:before{content:'+';font-size:29px;font-weight:500;line-height:1;color:#fff}
+      .empty-banner.show{margin-top:9px}
+      main{margin-top:9px}
+      .grid{gap:8px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+      .card{padding:12px;border-radius:15px}.card h3{font-size:11px}.kpi-value{font-size:clamp(17px,4.8vw,22px);margin-top:5px;overflow:hidden;text-overflow:ellipsis}.kpi-sub{font-size:10px;line-height:1.3;margin-top:5px}
+      .smart-section{margin-bottom:10px}.smart-title{margin:0 2px 7px}.smart-title h2{font-size:14px}.smart-title p{font-size:10px;line-height:1.3}
+      .smart-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.smart-card{min-height:112px;padding:11px}.smart-icon{width:27px;height:27px;border-radius:9px;font-size:14px;margin-bottom:7px}.smart-card h3{font-size:9.5px;line-height:1.18}.smart-value{font-size:clamp(16px,4.5vw,20px);margin-top:4px;overflow:hidden;text-overflow:ellipsis}.smart-sub{font-size:9px;margin-top:5px}.range-smart-card{min-height:112px}.range-caption{display:none}.smart-range-track{margin:13px 1px 7px;height:9px}.range-dot{width:16px;height:16px}.smart-range-labels{font-size:8.5px}
+      .dashboard-main,.data-grid,.real-grid{grid-template-columns:1fr;gap:9px}.dashboard-main{margin-top:0}
+      .section-title{align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px}.section-title h2{font-size:15px}.section-title p{font-size:10.5px;line-height:1.3}.segmented{width:100%;padding:3px}.segmented button{flex:1;padding:6px 5px;font-size:10px}
+      .chart-wrap{height:245px}.chart-wrap.medium{height:235px}.chart-wrap.small{height:215px}
+      .insights{gap:7px}.insight{padding:10px 11px;border-radius:12px;font-size:11px;line-height:1.38}
+      .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;margin-bottom:10px}.filters .field{min-width:0!important}.filters .field input,.filters .field select,.filters .field textarea{width:100%;min-width:0;padding:9px 9px;font-size:12px}.filters .field[style*="flex:1"]{grid-column:1/-1}.filters>.btn{grid-column:1/-1}.field label{font-size:10px}
+      .stats-kpis,.real-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}.stats-grid-2,.stats-grid-3{grid-template-columns:1fr;gap:9px;margin-bottom:10px}
+      .form-card .form-grid{grid-template-columns:1fr;gap:9px}.form-actions,.settings-actions{gap:7px}.form-actions .btn,.settings-actions .btn{flex:1;min-width:120px}
+      .hint,.notice,.source-box,.real-note{font-size:10.5px}
+      .rank-row{padding:8px;grid-template-columns:27px 1fr auto;gap:7px}.rank-val{font-size:11px}.rank-row small{font-size:9px}
+      .heatmap{min-width:680px}.hm-cell{height:29px}
+      .footer{font-size:9px;padding:12px 6px 2px}
+
+      /* History becomes touch-friendly cards instead of a wide desktop table */
+      #history .table-wrap{overflow:visible;border:0;background:transparent}
+      #history .table{min-width:0;width:100%;display:block}
+      #history .table thead{display:none}
+      #history .table tbody{display:block}
+      #history .table tr{display:grid;grid-template-columns:1fr 1fr;background:rgba(255,255,255,.95);border:1px solid #e8ecf3;border-radius:14px;overflow:hidden;margin-bottom:9px;box-shadow:0 5px 16px rgba(15,23,42,.045)}
+      #history .table td{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:0;border-bottom:1px solid #f0f2f6;font-size:11px;text-align:right!important;min-width:0;background:transparent!important}
+      #history .table td:before{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.035em;color:#98a2b3;text-align:left;white-space:nowrap}
+      #history .table td:nth-child(1),#history .table td:nth-child(2),#history .table td:nth-child(7),#history .table td:nth-child(8){grid-column:1/-1}
+      #history .table td:nth-child(1){font-size:13px;background:#fafbff!important}#history .table td:nth-child(1):before{content:'Period'}
+      #history .table td:nth-child(2){font-size:14px}#history .table td:nth-child(2):before{content:'Prihod'}
+      #history .table td:nth-child(3):before{content:'MoM'}#history .table td:nth-child(4):before{content:'YoY'}#history .table td:nth-child(5):before{content:'EUR kurs'}#history .table td:nth-child(6):before{content:'Tip'}#history .table td:nth-child(7):before{content:'Napomena'}#history .table td:nth-child(8):before{content:'Akcije'}
+      #history .table td:nth-child(7){align-items:flex-start;white-space:normal;text-align:left!important}#history .table td:nth-child(8){border-bottom:0;justify-content:flex-end}#history .table td:nth-child(8):before{margin-right:auto}
+      #history .icon-btn{padding:7px 10px;margin:0 0 0 4px}
+      #history .badge{font-size:9px;padding:3px 6px}
+      .real-table th,.real-table td{padding:7px 7px;font-size:10px}
+    }
+    @media(max-width:390px){
+      .app{padding-left:5px;padding-right:5px}.topbar{padding:8px}.brand-icon{width:35px;height:35px}.brand h1{font-size:15px}
+      .kpis,.smart-grid,.stats-kpis,.real-kpis{gap:6px}.card{padding:10px}.kpi-value{font-size:16px}.smart-value{font-size:15px}.smart-card{padding:10px}
+      .nav.bottom-nav{width:calc(100% - 10px);bottom:max(5px,env(safe-area-inset-bottom));padding:5px}.nav.bottom-nav button{padding:6px 2px}.nav-icon{font-size:17px}.nav-label{font-size:9px}
+      #quickAdd{right:11px;bottom:calc(78px + env(safe-area-inset-bottom));width:50px;height:50px}
+    }
+
   </style>
 </head>
 <body>
@@ -67,7 +140,7 @@
 </div>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.3 Cloud</small></div></div>
+    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.4 Mobile</small></div></div>
     <div class="top-actions">
       <div class="currency-switch"><button id="rsdBtn" class="active">RSD</button><button id="eurBtn">EUR</button></div>
       <div class="user-chip" id="userChip" style="display:none"><img id="userPhoto" alt=""><div class="who"><strong id="userName">Google nalog</strong><span class="sync-status" id="syncStatus"><span class="cloud-dot"></span>Firebase</span></div><button class="logout-btn" id="logoutBtn" title="Odjavi se">⎋</button></div>
@@ -75,12 +148,12 @@
     </div>
   </header>
 
-  <nav class="nav">
-    <button class="active" data-page="dashboard">Početna</button>
-    <button data-page="history">Istorija</button>
-    <button data-page="statistics">Statistika</button>
-    <button data-page="realSalary">Realna plata</button>
-    <button data-page="data">Podaci i podešavanja</button>
+  <nav class="nav bottom-nav" aria-label="Glavna navigacija">
+    <button class="active" data-page="dashboard" aria-label="Početna"><span class="nav-icon">⌂</span><span class="nav-label">Početna</span></button>
+    <button data-page="history" aria-label="Istorija"><span class="nav-icon">▤</span><span class="nav-label">Istorija</span></button>
+    <button data-page="statistics" aria-label="Statistika"><span class="nav-icon">▥</span><span class="nav-label">Statistika</span></button>
+    <button data-page="realSalary" aria-label="Realna plata"><span class="nav-icon">◎</span><span class="nav-label">Realna</span></button>
+    <button data-page="data" aria-label="Podaci i podešavanja"><span class="nav-icon">＋</span><span class="nav-label">Podaci</span></button>
   </nav>
 
   <main>
@@ -103,7 +176,7 @@
           <div class="card smart-card blue"><div class="smart-icon">↗</div><h3>Rast 12M proseka</h3><div class="smart-value" id="smartRollingGrowth">—</div><div class="smart-sub" id="smartRollingGrowthSub">prosek 12M prema prethodnih 12M</div></div>
           <div class="card smart-card warm"><div class="smart-icon">◎</div><h3>Projekcija godine</h3><div class="smart-value" id="smartProjection">—</div><div class="smart-sub" id="smartProjectionSub">—</div></div>
           <div class="card smart-card pink"><div class="smart-icon">★</div><h3>Najbolji mesec · 12M</h3><div class="smart-value" id="smartBest12">—</div><div class="smart-sub" id="smartBest12Sub">—</div></div>
-          <div class="card smart-card"><div class="smart-icon">≋</div><h3>Stabilnost · 12M</h3><div class="smart-value" id="smartStability">—</div><div class="smart-sub" id="smartStabilitySub">varijabilnost prihoda · niže znači stabilnije</div></div>
+          <div class="card smart-card range-smart-card"><div class="smart-icon">◉</div><h3>Pozicija poslednjeg prihoda</h3><div class="smart-sub range-caption">Istorijski raspon svih evidentiranih meseci</div><div class="range-track smart-range-track"><span id="rangeDot" class="range-dot" style="left:50%"></span></div><div class="range-labels smart-range-labels"><span id="rangeMin">MIN</span><span id="rangePct">—</span><span id="rangeMax">MAX</span></div></div>
         </div>
       </div>
 
@@ -115,7 +188,7 @@
         <div class="card">
           <div class="section-title"><div><h2>Automatski uvidi</h2><p>Najvažnije što podaci trenutno govore</p></div></div>
           <div id="insights" class="insights"></div>
-          <div class="range-box"><strong style="font-size:13px">Pozicija poslednjeg prihoda u istorijskom rasponu</strong><div class="range-track"><span id="rangeDot" class="range-dot" style="left:50%"></span></div><div class="range-labels"><span id="rangeMin">MIN</span><span id="rangePct">—</span><span id="rangeMax">MAX</span></div></div>
+
         </div>
       </div>
     </section>
@@ -229,7 +302,7 @@
       </div>
     </section>
   </main>
-  <div class="footer">Moji Prihodi v1.3 Cloud · Firebase + Google prijava · istorija i statistika prihoda</div>
+  <div class="footer">Moji Prihodi v1.4 Mobile · Firebase + Google prijava · optimizovano za telefon</div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -329,7 +402,7 @@ function destroyChart(name){if(charts[name]){charts[name].destroy();delete chart
 function makeChart(name,canvasId,type,labels,datasets,opts={}){destroyChart(name);const ctx=document.getElementById(canvasId);if(!ctx)return;if(!window.Chart){ctx.style.display='none';if(!ctx.parentElement.querySelector('.chart-offline')){const n=document.createElement('div');n.className='notice chart-offline';n.textContent='Grafikoni zahtevaju internet vezu za učitavanje Chart.js biblioteke.';ctx.parentElement.appendChild(n)}return}ctx.style.display='block';ctx.parentElement.querySelector('.chart-offline')?.remove();charts[name]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:datasets.length>1,labels:{usePointStyle:true,boxWidth:8}},tooltip:{callbacks:{label:(c)=>`${c.dataset.label||'Prihod'}: ${fmt(c.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:14,color:'#7b8190'}},y:{grid:{color:'rgba(148,163,184,.14)'},ticks:{color:'#7b8190',callback:(v)=>{if(currency==='EUR')return new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v)+' €';return new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v)}}}},...opts}})}
 
 function renderDashboard(){
-  const rows=sortedRows(); if(!rows.length){['kpiLatest','kpiMom','kpiYoy','kpi12Avg','kpi12Sum','kpiMedian','smartYtd','smartTypical','smartRollingGrowth','smartProjection','smartBest12','smartStability'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});document.getElementById('kpiLatestSub').textContent='Nema podataka';document.getElementById('kpi12AvgSub').textContent='—';document.getElementById('kpiMedianSub').textContent='—';document.getElementById('insights').innerHTML='<div class="insight">Uvezi početnu istoriju ili dodaj prvi mesečni prihod.</div>';destroyChart('main');return;}
+  const rows=sortedRows(); if(!rows.length){['kpiLatest','kpiMom','kpiYoy','kpi12Avg','kpi12Sum','kpiMedian','smartYtd','smartTypical','smartRollingGrowth','smartProjection','smartBest12'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});document.getElementById('kpiLatestSub').textContent='Nema podataka';document.getElementById('kpi12AvgSub').textContent='—';document.getElementById('kpiMedianSub').textContent='—';document.getElementById('insights').innerHTML='<div class="insight">Uvezi početnu istoriju ili dodaj prvi mesečni prihod.</div>';destroyChart('main');return;}
   const latest=rows.at(-1), prev=rows.at(-2), yoy=yoyRow(latest);
   const latestVal=val(latest), prevVal=prev?val(prev):null, yoyVal=yoy?val(yoy):null;
   const last12=rows.slice(-12), last12Vals=last12.map(val).filter(Number.isFinite), allVals=rows.map(val).filter(Number.isFinite);
@@ -352,8 +425,6 @@ function renderSmartWidgets(rows,latest){
   document.getElementById('smartRollingGrowthSub').textContent=prev12Vals.length?'prosek poslednjih 12M prema prethodnih 12M':'potrebna su najmanje 24 meseca';
   const projection=curVals.length?mean(curVals)*12:null; document.getElementById('smartProjection').textContent=fmt(projection); document.getElementById('smartProjectionSub').textContent=curVals.length===12?'stvarni zbir završene godine':`linearno na osnovu prvih ${curVals.length} meseci ${latest.year}.`;
   const best=last12Rows.length?[...last12Rows].sort((a,b)=>val(b)-val(a))[0]:null; document.getElementById('smartBest12').textContent=best?fmt(val(best)):'—'; document.getElementById('smartBest12Sub').textContent=best?periodLabel(best):'—';
-  const avg12=mean(last12Vals), cv=avg12?stdev(last12Vals)/avg12*100:null, se=document.getElementById('smartStability'); se.textContent=cv==null?'—':new Intl.NumberFormat('sr-RS',{minimumFractionDigits:1,maximumFractionDigits:1}).format(cv)+'%';
-  document.getElementById('smartStabilitySub').textContent=cv==null?'—':`koeficijent varijacije poslednjih ${last12Vals.length} meseci · niže = stabilnije`;
 }
 
 function renderMainChart(){const rows=sortedRows();let rr=rows;if(mainRange!=='all')rr=rows.slice(-Number(mainRange));makeChart('main','mainChart','line',rr.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),[{label:'Prihod',data:rr.map(val),borderColor:'#5b5ce2',backgroundColor:'rgba(91,92,226,.10)',borderWidth:2.4,pointRadius:rr.length>80?0:2.2,pointHoverRadius:5,tension:.25,fill:true}]);document.querySelectorAll('#mainRange button').forEach(b=>b.classList.toggle('active',b.dataset.range===String(mainRange)))}

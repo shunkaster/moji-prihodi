@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#111827" />
-  <title>Moji Prihodi — v1.1 Cloud</title>
+  <title>Moji Prihodi — v1.2 Cloud</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -37,6 +37,7 @@
     .chart-wrap{position:relative;height:365px}.chart-wrap.medium{height:320px}.chart-wrap.small{height:275px}
     .insights{display:flex;flex-direction:column;gap:10px}.insight{padding:12px 13px;border-radius:14px;background:#f8fafc;border:1px solid #eef2f6;font-size:13px;line-height:1.45}.insight strong{color:#344054}
     .range-box{margin-top:14px;padding:14px;border-radius:14px;background:#f8fafc}.range-track{height:12px;border-radius:999px;background:linear-gradient(90deg,#fca5a5,#fde68a,#86efac);position:relative;margin:12px 3px 7px}.range-dot{position:absolute;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);border:3px solid #fff;border-radius:50%;background:#1f2937;box-shadow:0 2px 8px rgba(0,0,0,.25)}.range-labels{display:flex;justify-content:space-between;color:#667085;font-size:11px}
+    .smart-section{margin:0 0 16px}.smart-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 2px 10px}.smart-title h2{font-size:16px;margin:0}.smart-title p{font-size:12px;color:var(--muted);margin:3px 0 0}.smart-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.smart-card{position:relative;overflow:hidden;min-height:124px;padding:15px}.smart-card:after{content:'';position:absolute;width:72px;height:72px;border-radius:50%;right:-22px;top:-24px;background:rgba(91,92,226,.07)}.smart-icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#f2f4ff;color:#5556d9;font-size:15px;margin-bottom:9px}.smart-card h3{font-size:11px;text-transform:uppercase;letter-spacing:.035em;margin:0;color:#7b8190}.smart-value{font-size:21px;font-weight:850;letter-spacing:-.025em;margin-top:5px;white-space:nowrap}.smart-sub{font-size:10px;color:#7b8190;line-height:1.35;margin-top:6px}.smart-card.good .smart-icon{background:#ecfdf5;color:#059669}.smart-card.warm .smart-icon{background:#fff7ed;color:#d97706}.smart-card.blue .smart-icon{background:#eff6ff;color:#2563eb}.smart-card.pink .smart-icon{background:#fdf2f8;color:#db2777}
     .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:14px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:12px;color:#667085;font-weight:700}.field input,.field select,.field textarea{border:1px solid #dfe4ec;border-radius:11px;padding:10px 11px;background:#fff;color:#1f2937;outline:none;min-width:120px}.field input:focus,.field select:focus,.field textarea:focus{border-color:#9b8afb;box-shadow:0 0 0 3px rgba(91,92,226,.11)}
     .table-wrap{overflow:auto;border:1px solid #edf0f5;border-radius:15px}.table{width:100%;border-collapse:collapse;min-width:850px}.table th,.table td{padding:12px 13px;text-align:left;border-bottom:1px solid #edf0f5;font-size:13px}.table th{position:sticky;top:0;background:#f8fafc;z-index:1;color:#667085;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.table tr:hover td{background:#fbfcff}.table td.num{text-align:right;font-variant-numeric:tabular-nums}.table th.num{text-align:right}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;background:#eef2ff;color:#4f46e5;font-size:11px;font-weight:750}.badge.outlier{background:#fff7ed;color:#c2410c}.icon-btn{border:0;background:#f2f4f7;border-radius:9px;padding:7px 9px;margin-right:4px}
     .stats-kpis{grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:16px}.stats-grid-2{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:16px}.stats-grid-3{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px}.list{display:flex;flex-direction:column;gap:9px}.rank-row{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#f8fafc}.rank-n{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#eef2ff;color:#4f46e5;font-weight:850;font-size:12px}.rank-row small{display:block;color:#98a2b3;margin-top:2px}.rank-val{font-weight:800;white-space:nowrap}
@@ -47,9 +48,9 @@
     .auth-gate{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at 20% 15%,rgba(91,92,226,.15),transparent 34%),rgba(244,247,251,.96);display:grid;place-items:center;padding:20px;backdrop-filter:blur(8px)}
     .auth-gate.hidden{display:none}.auth-card{width:min(430px,100%);background:#fff;border:1px solid #e7eaf0;border-radius:24px;padding:28px;box-shadow:0 26px 70px rgba(15,23,42,.16);text-align:center}.auth-logo{width:64px;height:64px;margin:0 auto 14px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,#5b5ce2,#8b5cf6);color:white;font-size:30px}.auth-card h2{margin:0 0 8px}.auth-card p{color:#667085;line-height:1.55;font-size:13px}.google-btn{width:100%;margin-top:12px;padding:12px 14px;border-radius:13px;border:1px solid #dfe4ec;background:#fff;font-weight:800;color:#344054}.auth-error{min-height:20px;margin-top:12px;color:#b42318;font-size:12px}.user-chip{display:flex;align-items:center;gap:8px;padding:6px 9px;background:#fff;border:1px solid var(--line);border-radius:12px;max-width:220px}.user-chip img{width:28px;height:28px;border-radius:50%;object-fit:cover}.user-chip .who{min-width:0;line-height:1.1}.user-chip strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sync-status{display:block;font-size:9px;color:#667085;margin-top:3px;white-space:nowrap}.logout-btn{border:0;background:transparent;color:#98a2b3;font-size:16px;padding:3px}.rate-line{display:flex;gap:7px;align-items:center}.rate-line input{flex:1;min-width:0}.rate-refresh{border:1px solid #dfe4ec;background:#f8fafc;border-radius:10px;padding:9px 10px}.rate-meta{font-size:10px;color:#667085;margin-top:4px;min-height:15px}.empty-banner{display:none;margin-bottom:16px;padding:15px 16px;border-radius:16px;border:1px solid #c7d7fe;background:#eef4ff;color:#344054;align-items:center;justify-content:space-between;gap:14px}.empty-banner.show{display:flex}.empty-banner strong{display:block;margin-bottom:3px}.cloud-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;margin-right:5px}.cloud-dot.busy{background:#f59e0b}.cloud-dot.error{background:#ef4444}
     @media(max-width:760px){.user-chip{max-width:150px}.empty-banner.show{align-items:flex-start;flex-direction:column}}
-    @media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.stats-kpis{grid-template-columns:repeat(3,1fr)}.stats-grid-3{grid-template-columns:1fr 1fr}.dashboard-main{grid-template-columns:1fr}.data-grid{grid-template-columns:1fr}}
-    @media(max-width:760px){.app{padding:10px}.topbar{top:6px;padding:12px;border-radius:18px;align-items:flex-start}.brand small{display:none}.top-actions{gap:6px}.top-actions .btn.primary{padding:9px 10px}.kpis,.stats-kpis,.stats-grid-2,.stats-grid-3{grid-template-columns:1fr 1fr}.kpi-value{font-size:23px}.card{padding:14px;border-radius:16px}.chart-wrap{height:290px}.data-grid{grid-template-columns:1fr}.form-card .form-grid{grid-template-columns:1fr}.currency-switch button{padding:7px 9px}}
-    @media(max-width:470px){.brand h1{font-size:17px}.brand-icon{width:40px;height:40px}.topbar{flex-direction:column}.top-actions{width:100%;justify-content:space-between}.kpis,.stats-kpis,.stats-grid-2,.stats-grid-3{grid-template-columns:1fr}.nav{margin:12px 0}.kpi-value{font-size:26px}}
+    @media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.smart-grid{grid-template-columns:repeat(3,1fr)}.stats-kpis{grid-template-columns:repeat(3,1fr)}.stats-grid-3{grid-template-columns:1fr 1fr}.dashboard-main{grid-template-columns:1fr}.data-grid{grid-template-columns:1fr}}
+    @media(max-width:760px){.smart-grid{grid-template-columns:1fr 1fr}.app{padding:10px}.topbar{top:6px;padding:12px;border-radius:18px;align-items:flex-start}.brand small{display:none}.top-actions{gap:6px}.top-actions .btn.primary{padding:9px 10px}.kpis,.stats-kpis,.stats-grid-2,.stats-grid-3{grid-template-columns:1fr 1fr}.kpi-value{font-size:23px}.card{padding:14px;border-radius:16px}.chart-wrap{height:290px}.data-grid{grid-template-columns:1fr}.form-card .form-grid{grid-template-columns:1fr}.currency-switch button{padding:7px 9px}}
+    @media(max-width:470px){.smart-grid{grid-template-columns:1fr}.brand h1{font-size:17px}.brand-icon{width:40px;height:40px}.topbar{flex-direction:column}.top-actions{width:100%;justify-content:space-between}.kpis,.stats-kpis,.stats-grid-2,.stats-grid-3{grid-template-columns:1fr}.nav{margin:12px 0}.kpi-value{font-size:26px}}
   </style>
 </head>
 <body>
@@ -64,7 +65,7 @@
 </div>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.1 Cloud</small></div></div>
+    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.2 Cloud</small></div></div>
     <div class="top-actions">
       <div class="currency-switch"><button id="rsdBtn" class="active">RSD</button><button id="eurBtn">EUR</button></div>
       <div class="user-chip" id="userChip" style="display:none"><img id="userPhoto" alt=""><div class="who"><strong id="userName">Google nalog</strong><span class="sync-status" id="syncStatus"><span class="cloud-dot"></span>Firebase</span></div><button class="logout-btn" id="logoutBtn" title="Odjavi se">⎋</button></div>
@@ -89,6 +90,18 @@
         <div class="card accent-orange"><h3>Prosek poslednjih 12M</h3><div class="kpi-value" id="kpi12Avg">—</div><div class="kpi-sub" id="kpi12AvgSub">—</div></div>
         <div class="card accent-cyan"><h3>Prihod poslednjih 12M</h3><div class="kpi-value" id="kpi12Sum">—</div><div class="kpi-sub">zbir poslednjih 12 evidentiranih meseci</div></div>
         <div class="card accent-pink"><h3>Istorijska medijana</h3><div class="kpi-value" id="kpiMedian">—</div><div class="kpi-sub" id="kpiMedianSub">—</div></div>
+      </div>
+
+      <div class="smart-section">
+        <div class="smart-title"><div><h2>Pametni pokazatelji</h2><p>Kontekst koji je posebno koristan za praćenje plate i ukupnih primanja</p></div></div>
+        <div class="grid smart-grid">
+          <div class="card smart-card good"><div class="smart-icon">Σ</div><h3>YTD prihod</h3><div class="smart-value" id="smartYtd">—</div><div class="smart-sub" id="smartYtdSub">—</div></div>
+          <div class="card smart-card"><div class="smart-icon">≈</div><h3>Tipičan mesec · 12M</h3><div class="smart-value" id="smartTypical">—</div><div class="smart-sub">medijana poslednjih 12 meseci · otpornija na bonuse</div></div>
+          <div class="card smart-card blue"><div class="smart-icon">↗</div><h3>Rast 12M proseka</h3><div class="smart-value" id="smartRollingGrowth">—</div><div class="smart-sub" id="smartRollingGrowthSub">prosek 12M prema prethodnih 12M</div></div>
+          <div class="card smart-card warm"><div class="smart-icon">◎</div><h3>Projekcija godine</h3><div class="smart-value" id="smartProjection">—</div><div class="smart-sub" id="smartProjectionSub">—</div></div>
+          <div class="card smart-card pink"><div class="smart-icon">★</div><h3>Najbolji mesec · 12M</h3><div class="smart-value" id="smartBest12">—</div><div class="smart-sub" id="smartBest12Sub">—</div></div>
+          <div class="card smart-card"><div class="smart-icon">≋</div><h3>Stabilnost · 12M</h3><div class="smart-value" id="smartStability">—</div><div class="smart-sub" id="smartStabilitySub">varijabilnost prihoda · niže znači stabilnije</div></div>
+        </div>
       </div>
 
       <div class="grid dashboard-main">
@@ -181,7 +194,7 @@
       </div>
     </section>
   </main>
-  <div class="footer">Moji Prihodi v1.1 Cloud · Firebase + Google prijava · istorija i statistika prihoda</div>
+  <div class="footer">Moji Prihodi v1.2 Cloud · Firebase + Google prijava · istorija i statistika prihoda</div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -270,7 +283,7 @@ function destroyChart(name){if(charts[name]){charts[name].destroy();delete chart
 function makeChart(name,canvasId,type,labels,datasets,opts={}){destroyChart(name);const ctx=document.getElementById(canvasId);if(!ctx)return;if(!window.Chart){ctx.style.display='none';if(!ctx.parentElement.querySelector('.chart-offline')){const n=document.createElement('div');n.className='notice chart-offline';n.textContent='Grafikoni zahtevaju internet vezu za učitavanje Chart.js biblioteke.';ctx.parentElement.appendChild(n)}return}ctx.style.display='block';ctx.parentElement.querySelector('.chart-offline')?.remove();charts[name]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:datasets.length>1,labels:{usePointStyle:true,boxWidth:8}},tooltip:{callbacks:{label:(c)=>`${c.dataset.label||'Prihod'}: ${fmt(c.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:14,color:'#7b8190'}},y:{grid:{color:'rgba(148,163,184,.14)'},ticks:{color:'#7b8190',callback:(v)=>{if(currency==='EUR')return new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v)+' €';return new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v)}}}},...opts}})}
 
 function renderDashboard(){
-  const rows=sortedRows(); if(!rows.length){['kpiLatest','kpiMom','kpiYoy','kpi12Avg','kpi12Sum','kpiMedian'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});document.getElementById('kpiLatestSub').textContent='Nema podataka';document.getElementById('kpi12AvgSub').textContent='—';document.getElementById('kpiMedianSub').textContent='—';document.getElementById('insights').innerHTML='<div class="insight">Uvezi početnu istoriju ili dodaj prvi mesečni prihod.</div>';destroyChart('main');return;}
+  const rows=sortedRows(); if(!rows.length){['kpiLatest','kpiMom','kpiYoy','kpi12Avg','kpi12Sum','kpiMedian','smartYtd','smartTypical','smartRollingGrowth','smartProjection','smartBest12','smartStability'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});document.getElementById('kpiLatestSub').textContent='Nema podataka';document.getElementById('kpi12AvgSub').textContent='—';document.getElementById('kpiMedianSub').textContent='—';document.getElementById('insights').innerHTML='<div class="insight">Uvezi početnu istoriju ili dodaj prvi mesečni prihod.</div>';destroyChart('main');return;}
   const latest=rows.at(-1), prev=rows.at(-2), yoy=yoyRow(latest);
   const latestVal=val(latest), prevVal=prev?val(prev):null, yoyVal=yoy?val(yoy):null;
   const last12=rows.slice(-12), last12Vals=last12.map(val).filter(Number.isFinite), allVals=rows.map(val).filter(Number.isFinite);
@@ -279,13 +292,32 @@ function renderDashboard(){
   const yy=pctChange(latestVal,yoyVal);const elY=document.getElementById('kpiYoy');elY.textContent=fmtPct(yy);elY.className='kpi-value '+classForPct(yy);
   document.getElementById('kpi12Avg').textContent=fmt(mean(last12Vals));document.getElementById('kpi12AvgSub').textContent=`na osnovu ${last12Vals.length} meseci`;
   document.getElementById('kpi12Sum').textContent=fmt(last12Vals.reduce((a,b)=>a+b,0));document.getElementById('kpiMedian').textContent=fmt(median(allVals));document.getElementById('kpiMedianSub').textContent=`za ${rows.length} evidentiranih meseci`;
-  renderMainChart();renderInsights(rows,latest,latestVal,allVals,last12Vals,mom,yy);
+  renderSmartWidgets(rows,latest);renderMainChart();renderInsights(rows,latest,latestVal,allVals,last12Vals,mom,yy);
 }
+function renderSmartWidgets(rows,latest){
+  const currentYear=rows.filter(r=>r.year===latest.year&&r.month<=latest.month), prevYear=rows.filter(r=>r.year===latest.year-1&&r.month<=latest.month);
+  const curVals=currentYear.map(val).filter(Number.isFinite), prevVals=prevYear.map(val).filter(Number.isFinite);
+  const ytd=curVals.reduce((a,b)=>a+b,0), prevYtd=prevVals.reduce((a,b)=>a+b,0), ytdGrowth=prevVals.length?pctChange(ytd,prevYtd):null;
+  document.getElementById('smartYtd').textContent=fmt(ytd);
+  document.getElementById('smartYtdSub').innerHTML=prevVals.length?`${latest.month} mes. · <span class="${classForPct(ytdGrowth)}">${fmtPct(ytdGrowth)}</span> prema istom periodu ${latest.year-1}.`:`${latest.month} evidentiranih meseci u ${latest.year}.`;
+  const last12Rows=rows.slice(-12), last12Vals=last12Rows.map(val).filter(Number.isFinite), prev12Vals=rows.slice(-24,-12).map(val).filter(Number.isFinite);
+  const typical=median(last12Vals); document.getElementById('smartTypical').textContent=fmt(typical);
+  const rollingGrowth=prev12Vals.length?pctChange(mean(last12Vals),mean(prev12Vals)):null, rg=document.getElementById('smartRollingGrowth'); rg.textContent=fmtPct(rollingGrowth); rg.className='smart-value '+classForPct(rollingGrowth);
+  document.getElementById('smartRollingGrowthSub').textContent=prev12Vals.length?'prosek poslednjih 12M prema prethodnih 12M':'potrebna su najmanje 24 meseca';
+  const projection=curVals.length?mean(curVals)*12:null; document.getElementById('smartProjection').textContent=fmt(projection); document.getElementById('smartProjectionSub').textContent=curVals.length===12?'stvarni zbir završene godine':`linearno na osnovu prvih ${curVals.length} meseci ${latest.year}.`;
+  const best=last12Rows.length?[...last12Rows].sort((a,b)=>val(b)-val(a))[0]:null; document.getElementById('smartBest12').textContent=best?fmt(val(best)):'—'; document.getElementById('smartBest12Sub').textContent=best?periodLabel(best):'—';
+  const avg12=mean(last12Vals), cv=avg12?stdev(last12Vals)/avg12*100:null, se=document.getElementById('smartStability'); se.textContent=cv==null?'—':new Intl.NumberFormat('sr-RS',{minimumFractionDigits:1,maximumFractionDigits:1}).format(cv)+'%';
+  document.getElementById('smartStabilitySub').textContent=cv==null?'—':`koeficijent varijacije poslednjih ${last12Vals.length} meseci · niže = stabilnije`;
+}
+
 function renderMainChart(){const rows=sortedRows();let rr=rows;if(mainRange!=='all')rr=rows.slice(-Number(mainRange));makeChart('main','mainChart','line',rr.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),[{label:'Prihod',data:rr.map(val),borderColor:'#5b5ce2',backgroundColor:'rgba(91,92,226,.10)',borderWidth:2.4,pointRadius:rr.length>80?0:2.2,pointHoverRadius:5,tension:.25,fill:true}]);document.querySelectorAll('#mainRange button').forEach(b=>b.classList.toggle('active',b.dataset.range===String(mainRange)))}
 function renderInsights(rows,latest,latestVal,allVals,last12Vals,mom,yy){
   const box=document.getElementById('insights');box.innerHTML='';const histAvg=mean(allVals), avg12=mean(last12Vals), pr=percentileRank(allVals,latestVal);
   const monthlySame=rows.filter(r=>r.month===latest.month).map(val).filter(Number.isFinite);const sameAvg=mean(monthlySame);
   const recent=rows.slice(-12).map(val).filter(Number.isFinite);const slope=linearSlope(recent);const slopePct=(slope&&mean(recent))?slope/mean(recent)*100:null;
+  const prev12=rows.slice(-24,-12).map(val).filter(Number.isFinite), rollingGrowth=prev12.length?pctChange(mean(recent),mean(prev12)):null;
+  const ytd=rows.filter(r=>r.year===latest.year&&r.month<=latest.month).map(val).filter(Number.isFinite), prevYtd=rows.filter(r=>r.year===latest.year-1&&r.month<=latest.month).map(val).filter(Number.isFinite);
+  const ytdGrowth=prevYtd.length?pctChange(ytd.reduce((a,b)=>a+b,0),prevYtd.reduce((a,b)=>a+b,0)):null, med12=median(recent), exceptional=med12&&latestVal>med12*1.5;
   const diffs=rows.slice(-8).map(val).filter(Number.isFinite);let streak=0,dir=0;for(let i=diffs.length-1;i>0;i--){const d=Math.sign(diffs[i]-diffs[i-1]);if(!d)break;if(!dir)dir=d;if(d!==dir)break;streak++}
   const ideas=[
     `Poslednji prihod je <strong>${fmtPct(pctChange(latestVal,avg12))}</strong> u odnosu na prosek poslednjih 12 meseci.`,
@@ -293,6 +325,9 @@ function renderInsights(rows,latest,latestVal,allVals,last12Vals,mom,yy){
     sameAvg?`${MONTHS[latest.month-1][0].toUpperCase()+MONTHS[latest.month-1].slice(1)} je trenutno <strong>${fmtPct(pctChange(latestVal,sameAvg))}</strong> u odnosu na istorijski prosek tog meseca.`:'',
     `Poslednja vrednost je oko <strong>${pr.toFixed(0)}. percentila</strong> svih evidentiranih meseci.`,
     slopePct!=null?`Linearni trend poslednjih 12 meseci je <strong class="${classForPct(slopePct)}">${slopePct>=0?'uzlazan':'silazan'} (${fmtPct(slopePct)} mesečno)</strong>.`:'',
+    ytdGrowth!=null?`Ukupan prihod od januara do ${MONTHS[latest.month-1]} je <strong class="${classForPct(ytdGrowth)}">${fmtPct(ytdGrowth)}</strong> u odnosu na isti period ${latest.year-1}.`:'' ,
+    rollingGrowth!=null?`Prosečan prihod u poslednjih 12 meseci je <strong class="${classForPct(rollingGrowth)}">${fmtPct(rollingGrowth)}</strong> u odnosu na prethodnih 12 meseci.`:'',
+    exceptional?`Poslednji prihod je više od <strong>50% iznad 12M medijane</strong> — izgleda kao bonus ili drugi izuzetan mesec.`:'',
     streak?`Trenutni niz: <strong>${streak+1} uzastopna meseca ${dir>0?'rasta':'pada'}</strong>.`:''
   ].filter(Boolean);ideas.forEach(x=>{const d=document.createElement('div');d.className='insight';d.innerHTML=x;box.appendChild(d)});
   const mn=Math.min(...allVals),mx=Math.max(...allVals),pos=mx===mn?50:(latestVal-mn)/(mx-mn)*100;document.getElementById('rangeDot').style.left=`${Math.max(0,Math.min(100,pos))}%`;document.getElementById('rangeMin').textContent=fmt(mn);document.getElementById('rangeMax').textContent=fmt(mx);document.getElementById('rangePct').textContent=`${pr.toFixed(0)}. percentil`;

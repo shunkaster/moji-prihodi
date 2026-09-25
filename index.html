@@ -133,26 +133,39 @@
     }
 
   
-    /* v1.7: minimal dashboard + monthly 12M overview */
+    /* v1.8: focused home + current vs previous year comparison */
     .home-kpis{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:14px}
+    .home-kpis .card:first-child{display:flex;flex-direction:column;justify-content:center;min-height:138px}
+    #kpiLatest{font-size:clamp(34px,3.4vw,48px);line-height:1.02;letter-spacing:-.045em;margin-top:8px;white-space:nowrap}
+    #kpiLatestSub{font-size:12px;margin-top:10px;font-weight:750}
     .home-chart-card{margin-bottom:14px}
-    .home-last12-card{margin-bottom:16px}
-    .home-last12-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
-    .home-month-card{border:1px solid #e9edf4;background:#f9fafc;border-radius:13px;padding:11px 12px;min-width:0}
-    .home-month-card.latest{background:#f3f1ff;border-color:#dcd8ff}
-    .home-month-name{font-size:10px;color:#7b8190;font-weight:800;text-transform:uppercase;letter-spacing:.035em;white-space:nowrap}
-    .home-month-value{font-size:15px;font-weight:850;color:#101828;margin-top:4px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .home-month-change{font-size:9.5px;margin-top:3px;color:#98a2b3;font-weight:700}
+    .home-year-compare-card{margin-bottom:16px}
+    .year-compare-head{display:grid;grid-template-columns:54px 1fr 1fr;gap:8px;align-items:end;margin-bottom:8px;padding:0 2px}
+    .year-compare-year{text-align:center;font-size:12px;font-weight:850;color:#344054}
+    .year-compare-year.current{color:#5b5ce2}
+    .year-compare-grid{display:grid;grid-template-columns:54px minmax(0,1fr) minmax(0,1fr);gap:7px 8px;align-items:stretch}
+    .year-month-label{display:flex;align-items:center;font-size:10px;color:#667085;font-weight:850;text-transform:uppercase;letter-spacing:.025em;padding-left:2px}
+    .year-income-cell{border:1px solid #e9edf4;background:#f9fafc;border-radius:12px;padding:9px 10px;min-width:0;display:flex;flex-direction:column;justify-content:center}
+    .year-income-cell.current{background:#f5f3ff;border-color:#e1ddff}
+    .year-income-cell.future{opacity:.48;background:#fafafa}
+    .year-income-value{font-size:13px;font-weight:850;color:#101828;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .year-income-meta{font-size:8.5px;color:#98a2b3;font-weight:750;margin-top:3px;min-height:12px}
     .stats-current-block{margin-bottom:18px}
     .stats-current-kpis{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px}
     .stats-smart-section{margin-bottom:16px}
     .stats-insights-card{margin-bottom:16px}
     @media(max-width:700px){
       .home-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-      .home-kpis .card:first-child{grid-column:1/-1}
-      .home-last12-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-      .home-month-card{padding:9px 10px;border-radius:12px}
-      .home-month-name{font-size:9px}.home-month-value{font-size:13px}.home-month-change{font-size:8.5px}
+      .home-kpis .card:first-child{grid-column:1/-1;min-height:142px;padding:16px 14px}
+      #kpiLatest{font-size:clamp(36px,11vw,50px);margin-top:10px}
+      #kpiLatestSub{font-size:12px;margin-top:10px}
+      .year-compare-head,.year-compare-grid{grid-template-columns:42px minmax(0,1fr) minmax(0,1fr);gap:6px}
+      .year-compare-head{margin-bottom:6px}
+      .year-compare-year{font-size:11px}
+      .year-month-label{font-size:8.5px}
+      .year-income-cell{padding:8px 7px;border-radius:10px}
+      .year-income-value{font-size:11.5px}
+      .year-income-meta{font-size:7.8px}
       .stats-current-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
       .stats-current-kpis .card:last-child{grid-column:1/-1}
     }
@@ -171,7 +184,7 @@
 </div>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.5 Mobile</small></div></div>
+    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.8 PWA</small></div></div>
     <div class="top-actions">
       <div class="currency-switch"><button id="rsdBtn" class="active">RSD</button><button id="eurBtn">EUR</button></div>
       <div class="user-chip" id="userChip" style="display:none"><img id="userPhoto" alt=""><div class="who"><strong id="userName">Google nalog</strong><span class="sync-status" id="syncStatus"><span class="cloud-dot"></span>Firebase</span></div><button class="logout-btn" id="logoutBtn" title="Odjavi se">⎋</button></div>
@@ -201,9 +214,9 @@
         <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
       </div>
 
-      <div class="card home-last12-card">
-        <div class="section-title"><div><h2>Poslednjih 12 meseci</h2><p>Prihodi po mesecima, od najnovijeg unazad</p></div></div>
-        <div id="homeLast12" class="home-last12-grid"></div>
+      <div class="card home-year-compare-card">
+        <div class="section-title"><div><h2>Poređenje po mesecima</h2><p>Tekuća godina naspram prethodne — isti mesec, jedan pored drugog</p></div></div>
+        <div id="homeYearCompare"></div>
       </div>
     </section>
 
@@ -346,7 +359,7 @@
       </div>
     </section>
   </main>
-  <div class="footer">Moji Prihodi v1.7 PWA · Firebase + Google prijava · mobile-first</div>
+  <div class="footer">Moji Prihodi v1.8 PWA · Firebase + Google prijava · mobile-first</div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -446,7 +459,7 @@ function destroyChart(name){if(charts[name]){charts[name].destroy();delete chart
 function makeChart(name,canvasId,type,labels,datasets,opts={}){destroyChart(name);const ctx=document.getElementById(canvasId);if(!ctx)return;if(!window.Chart){ctx.style.display='none';if(!ctx.parentElement.querySelector('.chart-offline')){const n=document.createElement('div');n.className='notice chart-offline';n.textContent='Grafikoni zahtevaju internet vezu za učitavanje Chart.js biblioteke.';ctx.parentElement.appendChild(n)}return}ctx.style.display='block';ctx.parentElement.querySelector('.chart-offline')?.remove();charts[name]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:datasets.length>1,labels:{usePointStyle:true,boxWidth:8}},tooltip:{callbacks:{label:(c)=>`${c.dataset.label||'Prihod'}: ${fmt(c.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:14,color:'#7b8190'}},y:{grid:{color:'rgba(148,163,184,.14)'},ticks:{color:'#7b8190',callback:(v)=>{if(currency==='EUR')return new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v)+' €';return new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v)}}}},...opts}})}
 
 function renderDashboard(){
-  const rows=sortedRows(); if(!rows.length){['kpiLatest','kpiMom','kpiYoy','kpi12Avg','kpi12Sum','kpiMedian','smartYtd','smartTypical','smartRollingGrowth','smartProjection','smartBest12'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});document.getElementById('kpiLatestSub').textContent='Nema podataka';document.getElementById('kpi12AvgSub').textContent='—';document.getElementById('kpiMedianSub').textContent='—';document.getElementById('insights').innerHTML='<div class="insight">Uvezi početnu istoriju ili dodaj prvi mesečni prihod.</div>';const h12=document.getElementById('homeLast12');if(h12)h12.innerHTML='<div class="insights-empty" style="grid-column:1/-1">Nema podataka.</div>';destroyChart('main');return;}
+  const rows=sortedRows(); if(!rows.length){['kpiLatest','kpiMom','kpiYoy','kpi12Avg','kpi12Sum','kpiMedian','smartYtd','smartTypical','smartRollingGrowth','smartProjection','smartBest12'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});document.getElementById('kpiLatestSub').textContent='Nema podataka';document.getElementById('kpi12AvgSub').textContent='—';document.getElementById('kpiMedianSub').textContent='—';document.getElementById('insights').innerHTML='<div class="insight">Uvezi početnu istoriju ili dodaj prvi mesečni prihod.</div>';const yc=document.getElementById('homeYearCompare');if(yc)yc.innerHTML='<div class="insights-empty">Nema podataka.</div>';destroyChart('main');return;}
   const latest=rows.at(-1), prev=rows.at(-2), yoy=yoyRow(latest);
   const latestVal=val(latest), prevVal=prev?val(prev):null, yoyVal=yoy?val(yoy):null;
   const last12=rows.slice(-12), last12Vals=last12.map(val).filter(Number.isFinite), allVals=rows.map(val).filter(Number.isFinite);
@@ -455,18 +468,23 @@ function renderDashboard(){
   const yy=pctChange(latestVal,yoyVal);const elY=document.getElementById('kpiYoy');elY.textContent=fmtPct(yy);elY.className='kpi-value '+classForPct(yy);
   document.getElementById('kpi12Avg').textContent=fmt(mean(last12Vals));document.getElementById('kpi12AvgSub').textContent=`na osnovu ${last12Vals.length} meseci`;
   document.getElementById('kpi12Sum').textContent=fmt(last12Vals.reduce((a,b)=>a+b,0));document.getElementById('kpiMedian').textContent=fmt(median(allVals));document.getElementById('kpiMedianSub').textContent=`za ${rows.length} evidentiranih meseci`;
-  renderSmartWidgets(rows,latest);renderMainChart();renderHomeLast12(rows);renderInsights(rows,latest,latestVal,allVals,last12Vals,mom,yy);
+  renderSmartWidgets(rows,latest);renderMainChart();renderHomeYearCompare(rows,latest);renderInsights(rows,latest,latestVal,allVals,last12Vals,mom,yy);
 }
-function renderHomeLast12(rows){
-  const el=document.getElementById('homeLast12');if(!el)return;
-  const last=rows.slice(-12).reverse();el.innerHTML='';
-  last.forEach((r,i)=>{
-    const chronologicalIndex=rows.findIndex(x=>x.id===r.id), prev=chronologicalIndex>0?rows[chronologicalIndex-1]:null;
-    const change=prev?pctChange(val(r),val(prev)):null;
-    const d=document.createElement('div');d.className='home-month-card'+(i===0?' latest':'');
-    d.innerHTML=`<div class="home-month-name">${MONTHS_SHORT[r.month-1]} ${r.year}</div><div class="home-month-value">${fmt(val(r))}</div><div class="home-month-change ${classForPct(change)}">${change==null?'—':`${fmtPct(change)} MoM`}</div>`;
-    el.appendChild(d)
-  });
+function renderHomeYearCompare(rows,latest){
+  const el=document.getElementById('homeYearCompare');if(!el)return;
+  const currentYear=latest.year, previousYear=currentYear-1;
+  const byKey=new Map(rows.map(r=>[`${r.year}-${r.month}`,r]));
+  let html=`<div class="year-compare-head"><div></div><div class="year-compare-year current">${currentYear}</div><div class="year-compare-year">${previousYear}</div></div><div class="year-compare-grid">`;
+  for(let m=1;m<=12;m++){
+    const cur=byKey.get(`${currentYear}-${m}`), prev=byKey.get(`${previousYear}-${m}`);
+    const curVal=cur?val(cur):null, prevVal=prev?val(prev):null;
+    const yoy=(Number.isFinite(curVal)&&Number.isFinite(prevVal))?pctChange(curVal,prevVal):null;
+    const future=!cur && m>latest.month;
+    html+=`<div class="year-month-label">${MONTHS_SHORT[m-1]}</div>`;
+    html+=`<div class="year-income-cell current${future?' future':''}"><div class="year-income-value">${cur?fmt(curVal):'—'}</div><div class="year-income-meta ${classForPct(yoy)}">${yoy==null?(future?'nije uneto':'—'):`${fmtPct(yoy)} YoY`}</div></div>`;
+    html+=`<div class="year-income-cell"><div class="year-income-value">${prev?fmt(prevVal):'—'}</div><div class="year-income-meta">${prev?periodLabel(prev):'nema podatka'}</div></div>`;
+  }
+  html+='</div>';el.innerHTML=html;
 }
 function renderSmartWidgets(rows,latest){
   const currentYear=rows.filter(r=>r.year===latest.year&&r.month<=latest.month), prevYear=rows.filter(r=>r.year===latest.year-1&&r.month<=latest.month);

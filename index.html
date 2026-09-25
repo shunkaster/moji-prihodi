@@ -184,7 +184,7 @@
 </div>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.8 PWA</small></div></div>
+    <div class="brand"><div class="brand-icon">↗</div><div><h1>Moji Prihodi</h1><small>Istorija, trend i analiza mesečnih primanja · v1.9 PWA</small></div></div>
     <div class="top-actions">
       <div class="currency-switch"><button id="rsdBtn" class="active">RSD</button><button id="eurBtn">EUR</button></div>
       <div class="user-chip" id="userChip" style="display:none"><img id="userPhoto" alt=""><div class="who"><strong id="userName">Google nalog</strong><span class="sync-status" id="syncStatus"><span class="cloud-dot"></span>Firebase</span></div><button class="logout-btn" id="logoutBtn" title="Odjavi se">⎋</button></div>
@@ -295,10 +295,10 @@
 
 
     <section id="realSalary" class="page">
-      <div class="real-note"><strong>Šta znači „realna plata“?</strong> Nominalni prihod govori koliko je dinara isplaćeno, dok realni prihod koriguje taj iznos za promenu nivoa cena. Ovde su istorijski prihodi preračunati u <strong>dinare kupovne moći avgusta 2026.</strong> <span class="method-pill">CPI Srbija</span><br>Za 2012–2025 koristi se godišnji prosečni CPI (zato su mesečne vrednosti unutar godine aproksimacija), a za 2026 zvanična mesečna dinamika RZS. Poslednji raspoloživ CPI: avgust 2026.</div>
+      <div class="real-note"><strong>Šta znači „realna plata“?</strong> Nominalni prihod govori koliko je dinara isplaćeno, dok realni prihod koriguje taj iznos za promenu nivoa cena. Ovde su istorijski prihodi preračunati u <strong>dinare kupovne moći avgusta 2026.</strong> <span class="method-pill">CPI Srbija</span><br>Za 2012–2025 koristi se godišnji prosečni CPI (zato su mesečne vrednosti unutar godine aproksimacija), a za 2026 zvanična mesečna dinamika RZS. Poslednji raspoloživ CPI: avgust 2026. U EUR prikazu nominalni prihod koristi kurs svog meseca, dok se realni prihod (izražen u cenama avgusta 2026.) prikazuje u EUR po prosečnom kursu avgusta 2026, da se ne mešaju inflacija i istorijske kursne razlike.</div>
       <div class="grid real-kpis">
         <div class="card accent-purple"><h3>Poslednji prihod · nominalno</h3><div class="kpi-value" id="realLatestNom">—</div><div class="kpi-sub" id="realLatestPeriod">—</div></div>
-        <div class="card accent-green"><h3>Poslednji prihod · realno</h3><div class="kpi-value" id="realLatestAdj">—</div><div class="kpi-sub">u cenama avgusta 2026.</div></div>
+        <div class="card accent-green"><h3>Poslednji prihod · realno</h3><div class="kpi-value" id="realLatestAdj">—</div><div class="kpi-sub" id="realLatestAdjSub">u cenama avgusta 2026.</div></div>
         <div class="card accent-blue"><h3>Nominalni rast od početka</h3><div class="kpi-value" id="realNomGrowth">—</div><div class="kpi-sub">prvi → poslednji evidentirani mesec</div></div>
         <div class="card accent-cyan"><h3>Realni rast od početka</h3><div class="kpi-value" id="realGrowth">—</div><div class="kpi-sub">nakon korekcije za inflaciju</div></div>
         <div class="card accent-orange"><h3>Rast nivoa cena</h3><div class="kpi-value" id="realInflation">—</div><div class="kpi-sub">prosek 2012. → avgust 2026.</div></div>
@@ -359,7 +359,7 @@
       </div>
     </section>
   </main>
-  <div class="footer">Moji Prihodi v1.8 PWA · Firebase + Google prijava · mobile-first</div>
+  <div class="footer">Moji Prihodi v1.9 PWA · Firebase + Google prijava · mobile-first</div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -375,8 +375,22 @@ const CPI_REFERENCE_LABEL='avgust 2026';
 let realRange='all';
 function buildAnnualCpiIndex(){const idx={2012:100};for(let y=2013;y<=2025;y++)idx[y]=idx[y-1]*(1+(CPI_ANNUAL_INFLATION[y]||0)/100);return idx}
 const CPI_YEAR_INDEX=buildAnnualCpiIndex();
-function cpiIndexForRow(r){if(r.year<=2025)return CPI_YEAR_INDEX[r.year]||null;if(r.year===2026){let rel=CPI_2026_JAN_VS_AVG2025/100;if(r.month>1){for(let m=2;m<=Math.min(r.month,CPI_2026_MONTHLY.length);m++)rel*=1+CPI_2026_MONTHLY[m-1]/100}return CPI_YEAR_INDEX[2025]*rel}return null}
-function latestCpiIndex(){let rel=CPI_2026_JAN_VS_AVG2025/100;for(let m=2;m<=CPI_2026_MONTHLY.length;m++)rel*=1+CPI_2026_MONTHLY[m-1]/100;return CPI_YEAR_INDEX[2025]*rel}
+function cpiIndexForRow(r){
+  if(r.year<=2025)return CPI_YEAR_INDEX[r.year]||null;
+  if(r.year===2026){
+    // RZS CPI is currently available only through August 2026.
+    // Never silently substitute August CPI for a later month.
+    if(r.month<1||r.month>CPI_2026_MONTHLY.length)return null;
+    let rel=CPI_2026_JAN_VS_AVG2025/100;
+    if(r.month>1){for(let m=2;m<=r.month;m++)rel*=1+CPI_2026_MONTHLY[m-1]/100}
+    return CPI_YEAR_INDEX[2025]*rel;
+  }
+  return null
+}
+function latestCpiIndex(){
+  // August 2026: official RZS total CPI = 103.5 relative to average 2025.
+  return CPI_YEAR_INDEX[2025]*1.035
+}
 function realRsd(r){const idx=cpiIndexForRow(r),target=latestCpiIndex();return idx?Number(r.amount)*target/idx:null}
 function fmtRsd(n){if(n==null||!isFinite(n))return '—';return new Intl.NumberFormat('sr-RS',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+' RSD'}
 
@@ -436,6 +450,10 @@ async function saveCloudData(){if(!cloudReady||!currentUser)return;try{await clo
 function sortedRows(rows=data){return [...rows].sort((a,b)=>(a.year-b.year)||(a.month-b.month))}
 function getRate(year,month){const row=data.find(x=>x.year===+year&&x.month===+month);if(row?.rate)return +row.rate;return MONTHLY_RATES[year]?.[month-1]??null}
 function val(row){if(currency==='EUR'){const r=row.rate||getRate(row.year,row.month);return r?row.amount/r:null}return row.amount}
+function realReferenceEurRate(){return MONTHLY_RATES[2026]?.[7]||117.3635}
+function realDisplayValue(row){const rr=realRsd(row);if(!Number.isFinite(rr))return null;return currency==='EUR'?rr/realReferenceEurRate():rr}
+function nominalDisplayValue(row){return val(row)}
+function fmtRealDisplay(n){return fmt(n,currency)}
 function fmt(n,cur=currency){if(n==null||!isFinite(n))return '—';return new Intl.NumberFormat('sr-RS',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+' '+cur}
 function fmtRate(n){return n?new Intl.NumberFormat('sr-RS',{minimumFractionDigits:2,maximumFractionDigits:4}).format(n):'—'}
 function fmtPct(n){if(n==null||!isFinite(n))return '—';return `${n>0?'+':''}${new Intl.NumberFormat('sr-RS',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n)}%`}
@@ -624,12 +642,70 @@ function downloadBlob(content,name,type){const a=document.createElement('a');a.h
 function parseCsv(text){const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(Boolean);const sep=lines[0].includes(';')?';':',';function split(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(ch===sep&&!q){out.push(cur);cur=''}else cur+=ch}out.push(cur);return out}const h=split(lines[0]).map(x=>x.trim().toLowerCase());return lines.slice(1).map(line=>{const a=split(line),get=(...names)=>{for(const n of names){const i=h.indexOf(n);if(i>=0)return a[i]}return ''};const y=+get('godina','year'),m=+get('mesec','month'),amount=parseLocaleNumber(get('iznos_rsd','amount','prihod')),rate=parseLocaleNumber(get('kurs_eur','rate','kurs'));return {id:`${y}-${String(m).padStart(2,'0')}`,year:y,month:m,amount,rate,rateDate:get('datum_kursa','rate_date')||null,rateKind:get('vrsta_kursa','rate_kind')||'import',rateSource:get('izvor_kursa','rate_source')||'Import',type:get('tip','type')||'Prihod',note:get('napomena','note')||''}}).filter(r=>r.year&&r.month&&r.amount)}
 async function importFile(file){try{const text=await file.text();let rows;if(file.name.toLowerCase().endsWith('.json')){const obj=JSON.parse(text);rows=Array.isArray(obj)?obj:obj.data}else rows=parseCsv(text);if(!Array.isArray(rows)||!rows.length)throw new Error('Nema podataka');const clean=rows.map((r,i)=>({id:r.id||`${+r.year}-${String(+r.month).padStart(2,'0')}`,year:+r.year,month:+r.month,amount:+r.amount,rate:r.rate?+r.rate:(MONTHLY_RATES[r.year]?.[r.month-1]??null),rateDate:r.rateDate||null,rateKind:r.rateKind||'import',rateSource:r.rateSource||'Import',type:r.type||'Prihod',note:r.note||''})).filter(r=>r.year&&r.month>=1&&r.month<=12&&r.amount>0);if(!clean.length)throw new Error('Neispravan format');if(!confirm(`Uvesti ${clean.length} zapisa i zameniti trenutne podatke?`))return;data=clean;persist();renderAll();toast('Podaci su uspešno uvezeni i šalju se u Firebase.');navigate('dashboard')}catch(e){toast('Import nije uspeo: '+e.message)}}
 
-function makeRealChart(name,canvasId,labels,datasets,opts={}){destroyChart(name);const ctx=document.getElementById(canvasId);if(!ctx||!window.Chart)return;charts[name]=new Chart(ctx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,labels:{usePointStyle:true,boxWidth:8}},tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmtRsd(c.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:14,color:'#7b8190'}},y:{grid:{color:'rgba(148,163,184,.14)'},ticks:{color:'#7b8190',callback:v=>new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v)}}},...opts}})}
-function renderRealSalary(){const rows=sortedRows();if(!rows.length)return;const first=rows[0],latest=rows.at(-1);const firstNom=Number(first.amount),latestNom=Number(latest.amount),firstReal=realRsd(first),latestReal=realRsd(latest);const nomGrowth=pctChange(latestNom,firstNom),realGrowth=pctChange(latestReal,firstReal),inflation=(latestCpiIndex()/CPI_YEAR_INDEX[2012]-1)*100;const last12=rows.slice(-12),prev12=rows.slice(-24,-12),last12Real=last12.map(realRsd).filter(Number.isFinite),prev12Real=prev12.map(realRsd).filter(Number.isFinite),r12=prev12Real.length?pctChange(mean(last12Real),mean(prev12Real)):null;document.getElementById('realLatestNom').textContent=fmtRsd(latestNom);document.getElementById('realLatestAdj').textContent=fmtRsd(latestReal);document.getElementById('realLatestPeriod').textContent=periodLabel(latest);[['realNomGrowth',nomGrowth],['realGrowth',realGrowth],['realInflation',inflation],['real12Growth',r12]].forEach(([id,v])=>{const e=document.getElementById(id);e.textContent=fmtPct(v);if(id!=='realInflation')e.className='kpi-value '+classForPct(v)});renderRealMainChart(rows);renderRealAnnual(rows);renderPurchasingPower(rows);renderRealInsights(rows,{nomGrowth,realGrowth,inflation,r12,firstReal,latestReal});renderInflationTable()}
-function renderRealMainChart(rows){let rr=rows;if(realRange!=='all')rr=rows.slice(-Number(realRange));makeRealChart('realSalary','realSalaryChart',rr.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),[{label:'Nominalni prihod',data:rr.map(r=>Number(r.amount)),borderColor:'#5b5ce2',backgroundColor:'transparent',borderWidth:2,pointRadius:rr.length>80?0:1.7,tension:.2},{label:`Realni prihod · cene ${CPI_REFERENCE_LABEL}`,data:rr.map(realRsd),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.06)',borderWidth:2.5,pointRadius:rr.length>80?0:1.7,tension:.2,fill:true}]);document.querySelectorAll('#realRange button').forEach(b=>b.classList.toggle('active',b.dataset.range===String(realRange)))}
-function renderRealAnnual(rows){const g=groupByYear(rows),years=Object.keys(g);const nom=years.map(y=>mean(g[y].map(r=>Number(r.amount)))),real=years.map(y=>mean(g[y].map(realRsd)));makeRealChart('realAnnual','realAnnualChart',years,[{label:'Nominalni prosek',data:nom,borderColor:'#5b5ce2',backgroundColor:'transparent',borderWidth:2.1,pointRadius:2.5,tension:.15},{label:`Realni prosek · ${CPI_REFERENCE_LABEL}`,data:real,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.06)',borderWidth:2.4,pointRadius:2.5,tension:.15,fill:true}])}
-function renderPurchasingPower(rows){const base=realRsd(rows[0]);const vals=rows.map(r=>base?realRsd(r)/base*100:null);destroyChart('purchasing');const ctx=document.getElementById('purchasingPowerChart');if(!ctx||!window.Chart)return;charts.purchasing=new Chart(ctx,{type:'line',data:{labels:rows.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),datasets:[{label:'Indeks realnog prihoda',data:vals,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.08)',borderWidth:2.3,pointRadius:0,tension:.2,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`Kupovna moć: ${c.parsed.y.toFixed(1)} (početak=100)`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:14,color:'#7b8190'}},y:{grid:{color:'rgba(148,163,184,.14)'},ticks:{color:'#7b8190',callback:v=>v.toFixed(0)}}}}})}
-function renderRealInsights(rows,m){const box=document.getElementById('realInsights');box.innerHTML='';const latest=rows.at(-1),same=rows.find(r=>r.year===latest.year-1&&r.month===latest.month),realYoy=same?pctChange(realRsd(latest),realRsd(same)):null;const gap=(m.nomGrowth!=null&&m.realGrowth!=null)?m.nomGrowth-m.realGrowth:null;const annual=groupByYear(rows),years=Object.keys(annual);let best=null;years.forEach(y=>{const avg=mean(annual[y].map(realRsd));if(!best||avg>best.avg)best={year:y,avg}});const ideas=[`Od prvog evidentiranog meseca nominalni prihod je promenjen za <strong>${fmtPct(m.nomGrowth)}</strong>, a kupovna moć za <strong class="${classForPct(m.realGrowth)}">${fmtPct(m.realGrowth)}</strong>.`,gap!=null?`Razlika između nominalnog i realnog rasta iznosi približno <strong>${Math.abs(gap).toFixed(1)} procentnih poena</strong> — to je deo rasta koji je „pojela“ promena nivoa cena.`:'',realYoy!=null?`Realni prihod za ${MONTHS[latest.month-1]} je <strong class="${classForPct(realYoy)}">${fmtPct(realYoy)}</strong> u odnosu na isti mesec prethodne godine.`:'',m.r12!=null?`Prosečna kupovna moć poslednjih 12 meseci je <strong class="${classForPct(m.r12)}">${fmtPct(m.r12)}</strong> u odnosu na prethodnih 12 meseci.`:'',best?`Najviši prosečni realni mesečni prihod u evidenciji trenutno ima <strong>${best.year}. godina</strong> (${fmtRsd(best.avg)} u cenama ${CPI_REFERENCE_LABEL}).`:'' ].filter(Boolean);ideas.forEach(x=>{const d=document.createElement('div');d.className='real-insight';d.innerHTML=x;box.appendChild(d)})}
+function makeRealChart(name,canvasId,labels,datasets,opts={}){
+  destroyChart(name);const ctx=document.getElementById(canvasId);if(!ctx||!window.Chart)return;
+  charts[name]=new Chart(ctx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,labels:{usePointStyle:true,boxWidth:8}},tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmtRealDisplay(c.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:14,color:'#7b8190'}},y:{grid:{color:'rgba(148,163,184,.14)'},ticks:{color:'#7b8190',callback:v=>{const n=new Intl.NumberFormat('sr-RS',{notation:'compact',maximumFractionDigits:1}).format(v);return currency==='EUR'?n+' EUR':n+' RSD'}}}},...opts}})
+}
+function renderRealSalary(){
+  const rows=sortedRows();if(!rows.length)return;
+  const first=rows[0],latest=rows.at(-1);
+  const firstNom=Number(first.amount),latestNom=Number(latest.amount),firstReal=realRsd(first),latestReal=realRsd(latest);
+  const nomGrowth=pctChange(latestNom,firstNom),realGrowth=(Number.isFinite(firstReal)&&Number.isFinite(latestReal))?pctChange(latestReal,firstReal):null;
+  const inflation=(latestCpiIndex()/CPI_YEAR_INDEX[2012]-1)*100;
+  const validRealRows=rows.filter(r=>Number.isFinite(realRsd(r)));
+  const last12=validRealRows.slice(-12),prev12=validRealRows.slice(-24,-12),last12Real=last12.map(realRsd).filter(Number.isFinite),prev12Real=prev12.map(realRsd).filter(Number.isFinite),r12=prev12Real.length?pctChange(mean(last12Real),mean(prev12Real)):null;
+  document.getElementById('realLatestNom').textContent=fmt(nominalDisplayValue(latest));
+  document.getElementById('realLatestPeriod').textContent=periodLabel(latest);
+  const realEl=document.getElementById('realLatestAdj'), realSub=document.getElementById('realLatestAdjSub');
+  const latestRealDisplay=realDisplayValue(latest);
+  if(Number.isFinite(latestRealDisplay)){
+    realEl.textContent=fmtRealDisplay(latestRealDisplay);
+    realSub.textContent=currency==='EUR'?'u cenama avgusta 2026. · EUR po kursu avgusta 2026.':'u cenama avgusta 2026.';
+  }else{
+    realEl.textContent='—';
+    realSub.textContent=`CPI za ${MONTHS[latest.month-1]} ${latest.year}. još nije objavljen`;
+  }
+  [['realNomGrowth',nomGrowth],['realGrowth',realGrowth],['realInflation',inflation],['real12Growth',r12]].forEach(([id,v])=>{const e=document.getElementById(id);e.textContent=fmtPct(v);if(id!=='realInflation')e.className='kpi-value '+classForPct(v)});
+  renderRealMainChart(rows);renderRealAnnual(rows);renderPurchasingPower(rows);renderRealInsights(rows,{nomGrowth,realGrowth,inflation,r12,firstReal,latestReal});renderInflationTable()
+}
+function renderRealMainChart(rows){
+  let rr=rows;if(realRange!=='all')rr=rows.slice(-Number(realRange));
+  makeRealChart('realSalary','realSalaryChart',rr.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),[
+    {label:`Nominalni prihod · ${currency}`,data:rr.map(nominalDisplayValue),borderColor:'#5b5ce2',backgroundColor:'transparent',borderWidth:2,pointRadius:rr.length>80?0:1.7,tension:.2},
+    {label:`Realni prihod · cene ${CPI_REFERENCE_LABEL} · ${currency}`,data:rr.map(realDisplayValue),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.06)',borderWidth:2.5,pointRadius:rr.length>80?0:1.7,tension:.2,fill:true}
+  ]);
+  document.querySelectorAll('#realRange button').forEach(b=>b.classList.toggle('active',b.dataset.range===String(realRange)))
+}
+function renderRealAnnual(rows){
+  const g=groupByYear(rows),years=Object.keys(g);
+  const nom=years.map(y=>mean(g[y].map(nominalDisplayValue).filter(Number.isFinite)));
+  const real=years.map(y=>mean(g[y].map(realDisplayValue).filter(Number.isFinite)));
+  makeRealChart('realAnnual','realAnnualChart',years,[
+    {label:`Nominalni prosek · ${currency}`,data:nom,borderColor:'#5b5ce2',backgroundColor:'transparent',borderWidth:2.1,pointRadius:2.5,tension:.15},
+    {label:`Realni prosek · ${CPI_REFERENCE_LABEL} · ${currency}`,data:real,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.06)',borderWidth:2.4,pointRadius:2.5,tension:.15,fill:true}
+  ])
+}
+function renderPurchasingPower(rows){
+  const valid=rows.filter(r=>Number.isFinite(realRsd(r)));if(!valid.length)return;
+  const base=realRsd(valid[0]);const vals=rows.map(r=>{const v=realRsd(r);return base&&Number.isFinite(v)?v/base*100:null});
+  destroyChart('purchasing');const ctx=document.getElementById('purchasingPowerChart');if(!ctx||!window.Chart)return;
+  charts.purchasing=new Chart(ctx,{type:'line',data:{labels:rows.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),datasets:[{label:'Indeks realnog prihoda',data:vals,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.08)',borderWidth:2.3,pointRadius:0,tension:.2,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`Kupovna moć: ${c.parsed.y.toFixed(1)} (početak=100)`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:14,color:'#7b8190'}},y:{grid:{color:'rgba(148,163,184,.14)'},ticks:{color:'#7b8190',callback:v=>v.toFixed(0)}}}}})
+}
+function renderRealInsights(rows,m){
+  const box=document.getElementById('realInsights');box.innerHTML='';
+  const validRows=rows.filter(r=>Number.isFinite(realRsd(r)));if(!validRows.length){box.innerHTML='<div class="real-insight">Nema dovoljno CPI podataka za obračun realne kupovne moći.</div>';return}
+  const latestValid=validRows.at(-1),same=validRows.find(r=>r.year===latestValid.year-1&&r.month===latestValid.month),realYoy=same?pctChange(realRsd(latestValid),realRsd(same)):null;
+  const gap=(m.nomGrowth!=null&&m.realGrowth!=null)?m.nomGrowth-m.realGrowth:null;const annual=groupByYear(validRows),years=Object.keys(annual);let best=null;
+  years.forEach(y=>{const avg=mean(annual[y].map(realRsd).filter(Number.isFinite));if(Number.isFinite(avg)&&(!best||avg>best.avg))best={year:y,avg}});
+  const bestDisplay=best?(currency==='EUR'?best.avg/realReferenceEurRate():best.avg):null;
+  const ideas=[
+    m.realGrowth!=null?`Od prvog evidentiranog meseca nominalni prihod je promenjen za <strong>${fmtPct(m.nomGrowth)}</strong>, a kupovna moć za <strong class="${classForPct(m.realGrowth)}">${fmtPct(m.realGrowth)}</strong>.`:`Realni rast do poslednjeg unosa još ne može da se izračuna jer CPI za taj mesec nije objavljen.`,
+    gap!=null?`Razlika između nominalnog i realnog rasta iznosi približno <strong>${Math.abs(gap).toFixed(1)} procentnih poena</strong> — to je deo rasta koji je „pojela“ promena nivoa cena.`:'',
+    realYoy!=null?`Realni prihod za ${MONTHS[latestValid.month-1]} je <strong class="${classForPct(realYoy)}">${fmtPct(realYoy)}</strong> u odnosu na isti mesec prethodne godine.`:'',
+    m.r12!=null?`Prosečna kupovna moć poslednjih 12 meseci sa dostupnim CPI podacima je <strong class="${classForPct(m.r12)}">${fmtPct(m.r12)}</strong> u odnosu na prethodnih 12 meseci.`:'',
+    best?`Najviši prosečni realni mesečni prihod u evidenciji trenutno ima <strong>${best.year}. godina</strong> (${fmtRealDisplay(bestDisplay)} u cenama ${CPI_REFERENCE_LABEL}).`:''
+  ].filter(Boolean);ideas.forEach(x=>{const d=document.createElement('div');d.className='real-insight';d.innerHTML=x;box.appendChild(d)})
+}
 function renderInflationTable(){const tbody=document.getElementById('inflationTable');if(!tbody)return;tbody.innerHTML='';for(let y=2012;y<=2025;y++){const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${y}</strong></td><td>${new Intl.NumberFormat('sr-RS',{minimumFractionDigits:1,maximumFractionDigits:2}).format(CPI_ANNUAL_INFLATION[y])}%</td><td>${CPI_YEAR_INDEX[y].toFixed(1)}</td>`;tbody.appendChild(tr)}const tr=document.createElement('tr');tr.innerHTML=`<td><strong>2026*</strong></td><td>+3,5% nivo cena avgust / Ø2025</td><td>${latestCpiIndex().toFixed(1)}</td>`;tbody.appendChild(tr)}
 
 function renderAll(){const empty=!data.length;document.getElementById('emptyCloudBanner').classList.toggle('show',cloudReady&&empty);renderDashboard();renderHistory();if(!empty&&document.getElementById('statistics').classList.contains('active'))renderStatistics();if(!empty&&document.getElementById('realSalary').classList.contains('active'))renderRealSalary();document.getElementById('rsdBtn').classList.toggle('active',currency==='RSD');document.getElementById('eurBtn').classList.toggle('active',currency==='EUR')}

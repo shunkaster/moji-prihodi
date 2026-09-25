@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#111827" />
-  <title>Moji Prihodi — v1.5 Mobile</title>
+  <meta name="theme-color" content="#5b5ce2" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Moji Prihodi" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Moji Prihodi — v1.6 PWA</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <style>
     :root{
       --bg:#f4f7fb; --surface:#ffffff; --surface-2:#f8fafc; --text:#162033; --muted:#6b7280;
@@ -298,12 +303,16 @@
           <h3 style="font-size:15px;color:#344054">Firebase sinhronizacija</h3>
           <p class="hint">Podaci se čuvaju u dokumentu <code>mojiPrihodi/shared</code>. Lokalni browser čuva samo podešavanja prikaza i može automatski preneti podatke iz stare V1.0 pri prvom pokretanju.</p>
           <div class="settings-actions"><button class="btn ghost" id="reloadCloud">Ponovo učitaj iz Firebase-a</button></div>
+          <hr style="border:0;border-top:1px solid #edf0f5;margin:20px 0">
+          <h3 style="font-size:15px;color:#344054">PWA aplikacija</h3>
+          <p class="hint" id="pwaStatus">Aplikacija može da se doda na početni ekran i otvara kao zasebna aplikacija, ako browser i pravila telefona to dozvoljavaju.</p>
+          <div class="settings-actions"><button class="btn primary" id="installPwa" style="display:none">Instaliraj / dodaj na početni ekran</button></div>
           <div class="source-box"><strong>Metodologija kursa:</strong> istorijski zapisi zadržavaju svoj mesečni prosečni kurs. Kod svakog novog prihoda aplikacija automatski preuzima dnevni zvanični srednji EUR/RSD kurs zasnovan na podacima NBS i čuva i datum korišćenog kursa. Ako servis trenutno nije dostupan, polje ostaje ručno izmenjivo kao rezervna opcija.</div>
         </div>
       </div>
     </section>
   </main>
-  <div class="footer">Moji Prihodi v1.5 Mobile · Firebase + Google prijava · optimizovano za telefon</div>
+  <div class="footer">Moji Prihodi v1.6 PWA · Firebase + Google prijava · mobile-first</div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -426,6 +435,19 @@ function renderSmartWidgets(rows,latest){
   document.getElementById('smartRollingGrowthSub').textContent=prev12Vals.length?'prosek poslednjih 12M prema prethodnih 12M':'potrebna su najmanje 24 meseca';
   const projection=curVals.length?mean(curVals)*12:null; document.getElementById('smartProjection').textContent=fmt(projection); document.getElementById('smartProjectionSub').textContent=curVals.length===12?'stvarni zbir završene godine':`linearno na osnovu prvih ${curVals.length} meseci ${latest.year}.`;
   const best=last12Rows.length?[...last12Rows].sort((a,b)=>val(b)-val(a))[0]:null; document.getElementById('smartBest12').textContent=best?fmt(val(best)):'—'; document.getElementById('smartBest12Sub').textContent=best?periodLabel(best):'—';
+
+  // Istorijska pozicija poslednjeg prihoda — mora se osvežiti pri svakom Firestore update-u i promeni valute.
+  const allVals=rows.map(val).filter(Number.isFinite), latestVal=val(latest);
+  const dot=document.getElementById('rangeDot'), minEl=document.getElementById('rangeMin'), maxEl=document.getElementById('rangeMax'), pctEl=document.getElementById('rangePct');
+  if(allVals.length && Number.isFinite(latestVal) && dot && minEl && maxEl && pctEl){
+    const mn=Math.min(...allVals), mx=Math.max(...allVals), pr=percentileRank(allVals,latestVal);
+    const pos=mx===mn?50:((latestVal-mn)/(mx-mn))*100;
+    dot.style.left=`${Math.max(0,Math.min(100,pos))}%`;
+    minEl.textContent=fmt(mn);
+    maxEl.textContent=fmt(mx);
+    pctEl.textContent=pr==null?'—':`${pr.toFixed(0)}. percentil`;
+    dot.title=`${periodLabel(latest)} · ${fmt(latestVal)} · ${pctEl.textContent}`;
+  }
 }
 
 function renderMainChart(){const rows=sortedRows();let rr=rows;if(mainRange!=='all')rr=rows.slice(-Number(mainRange));makeChart('main','mainChart','line',rr.map(r=>`${MONTHS_SHORT[r.month-1]} ${String(r.year).slice(2)}`),[{label:'Prihod',data:rr.map(val),borderColor:'#5b5ce2',backgroundColor:'rgba(91,92,226,.10)',borderWidth:2.4,pointRadius:rr.length>80?0:2.2,pointHoverRadius:5,tension:.25,fill:true}]);document.querySelectorAll('#mainRange button').forEach(b=>b.classList.toggle('active',b.dataset.range===String(mainRange)))}
@@ -561,6 +583,30 @@ async function startCloudSync(user){
   },async err=>{console.error(err);cloudReady=false;setSyncStatus('Nema pristupa','error');if(err&&err.code==='permission-denied'){document.getElementById('userChip').style.display='none';await auth.signOut();showAuthGate('Prijavi se Google nalogom koji ima pristup aplikaciji.','Ovaj Google nalog nema dozvolu za Firebase podatke.')}else showAuthGate('Firebase trenutno nije dostupan.','Proveri internet vezu i pokušaj ponovo.')});
 }
 async function reloadCloud(){if(!currentUser)return;try{setSyncStatus('Učitavanje…','busy');const snap=await cloudDoc.get();if(snap.exists){const p=snap.data()||{};data=Array.isArray(p.incomes)?p.incomes:[];renderAll();setSyncStatus('Sinhronizovano');toast('Podaci su ponovo učitani iz Firebase-a.')}}catch(e){setSyncStatus('Greška','error');toast('Ponovno učitavanje nije uspelo.')}}
+let deferredPwaPrompt=null;
+function updatePwaUi(){
+  const btn=document.getElementById('installPwa'), status=document.getElementById('pwaStatus');
+  if(!btn||!status)return;
+  const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  if(standalone){btn.style.display='none';status.textContent='PWA je već pokrenuta u samostalnom režimu.';return}
+  if(deferredPwaPrompt){btn.style.display='inline-flex';status.textContent='Aplikacija je spremna za instalaciju / dodavanje na početni ekran.'}
+  else{btn.style.display='none';status.textContent='Ako browser podržava PWA i telefon to dozvoljava, u meniju browsera izaberi „Add to Home screen“ / „Install app“.'}
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPwaPrompt=e;updatePwaUi()});
+window.addEventListener('appinstalled',()=>{deferredPwaPrompt=null;updatePwaUi();toast('Moji Prihodi su dodati kao PWA aplikacija.')});
+async function installPwa(){
+  if(!deferredPwaPrompt){updatePwaUi();return}
+  deferredPwaPrompt.prompt();
+  try{await deferredPwaPrompt.userChoice}catch(e){}
+  deferredPwaPrompt=null;updatePwaUi();
+}
+function registerPwa(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(e=>console.warn('Service worker:',e)));
+  }
+  updatePwaUi();
+}
+
 function init(){
   document.getElementById('entryMonth').innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}">${m[0].toUpperCase()+m.slice(1)}</option>`).join('');
   document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.page)));document.getElementById('rsdBtn').onclick=()=>setCurrency('RSD');document.getElementById('eurBtn').onclick=()=>setCurrency('EUR');document.getElementById('quickAdd').onclick=()=>prepareNewEntry(true);
@@ -569,7 +615,7 @@ function init(){
   ['historyYear','historyType'].forEach(id=>document.getElementById(id).addEventListener('change',renderHistory));document.getElementById('historySearch').addEventListener('input',renderHistory);document.getElementById('historyReset').onclick=()=>{document.getElementById('historyYear').value='all';document.getElementById('historyType').value='all';document.getElementById('historySearch').value='';renderHistory()};
   ['statsFrom','statsTo'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{let f=+document.getElementById('statsFrom').value,t=+document.getElementById('statsTo').value;if(f>t){if(id==='statsFrom')document.getElementById('statsTo').value=f;else document.getElementById('statsFrom').value=t}renderStatistics()}));document.getElementById('statsAll').onclick=()=>{const ys=[...new Set(data.map(r=>r.year))].sort((a,b)=>a-b);if(!ys.length)return;document.getElementById('statsFrom').value=ys[0];document.getElementById('statsTo').value=ys.at(-1);renderStatistics()};['compareA','compareB','compareC'].forEach(id=>document.getElementById(id).addEventListener('change',renderCompare));
   document.getElementById('entryAmount').addEventListener('input',updateEurPreview);document.getElementById('entryRate').addEventListener('input',()=>{if(document.activeElement===document.getElementById('entryRate')){currentRateMeta={date:currentRateMeta.date,kind:'manual',source:'Ručni unos'};document.getElementById('rateMeta').textContent='Kurs je ručno izmenjen.'}updateEurPreview()});document.getElementById('refreshRate').onclick=()=>fetchDailyRate(true);document.getElementById('saveEntry').onclick=saveEntry;document.getElementById('cancelEdit').onclick=()=>prepareNewEntry(false);
-  document.getElementById('exportJson').onclick=exportJson;document.getElementById('exportCsv').onclick=exportCsv;document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('seedImportBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('importFile').addEventListener('change',e=>{if(e.target.files[0])importFile(e.target.files[0]);e.target.value=''});document.getElementById('reloadCloud').onclick=reloadCloud;
+  document.getElementById('exportJson').onclick=exportJson;document.getElementById('exportCsv').onclick=exportCsv;document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('seedImportBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('importFile').addEventListener('change',e=>{if(e.target.files[0])importFile(e.target.files[0]);e.target.value=''});document.getElementById('reloadCloud').onclick=reloadCloud;document.getElementById('installPwa').onclick=installPwa;registerPwa();
   document.getElementById('googleLogin').onclick=async()=>{document.getElementById('authError').textContent='';try{await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);await auth.signInWithPopup(provider)}catch(e){document.getElementById('authError').textContent=e.code==='auth/popup-closed-by-user'?'Prijava je otkazana.':'Google prijava nije uspela.'}};document.getElementById('logoutBtn').onclick=()=>auth.signOut();
   auth.onAuthStateChanged(user=>{if(user)startCloudSync(user);else{currentUser=null;cloudReady=false;if(cloudUnsub){cloudUnsub();cloudUnsub=null}document.getElementById('userChip').style.display='none';showAuthGate();}});
   prepareNewEntry(false);setCurrency(currency);renderAll();
